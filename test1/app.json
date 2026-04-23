@@ -1,0 +1,20 @@
+{
+  "pages": [
+    "pages/health/health",
+    "pages/index/index",
+    "pages/recognize/recognize",
+    "pages/recipes/recipes",
+    "pages/calorie/calorie",
+    "pages/diet-overview/diet-overview"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#4CAF50",
+    "navigationBarTitleText": "健康分析",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f5f5f5"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

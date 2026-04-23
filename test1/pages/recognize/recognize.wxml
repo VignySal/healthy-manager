@@ -1,0 +1,89 @@
+<view class="container">
+  <view class="result-header" wx:if="{{ingredients.length > 0}}">
+    <text class="result-icon">✅</text>
+    <text class="result-title">识别成功！</text>
+    <text class="result-subtitle">以下是识别出的食材</text>
+  </view>
+
+  <view class="result-header" wx:else>
+    <text class="result-icon">📝</text>
+    <text class="result-title">手动添加食材</text>
+    <text class="result-subtitle">请添加您的食材后生成菜谱</text>
+  </view>
+
+  <view class="image-preview-section" wx:if="{{selectedImage}}">
+    <view class="preview-card">
+      <image src="{{selectedImage}}" mode="aspectFill" class="preview-small"></image>
+    </view>
+  </view>
+
+  <view class="ingredients-section">
+    <view class="section-title">🥗 {{ingredients.length > 0 ? '识别到的食材' : '已添加的食材'}}</view>
+    <view class="ingredients-tags" wx:if="{{ingredients.length > 0}}">
+      <view class="ingredient-tag" wx:for="{{ingredients}}" wx:key="index">
+        <text>{{item}}</text>
+        <view class="tag-remove" bindtap="removeIngredient" data-index="{{index}}">×</view>
+      </view>
+    </view>
+    <view class="empty-ingredients" wx:else>
+      <text class="empty-text">还没有添加食材，您可以：</text>
+      <text class="empty-hint">• 手动输入食材名称</text>
+      <text class="empty-hint">• 点击下方常用食材</text>
+    </view>
+  </view>
+
+  <view class="add-section">
+    <view class="add-card">
+      <view class="add-title">➕ 添加更多食材</view>
+      <view class="add-input-wrapper">
+        <input class="add-input" placeholder="输入食材名称，如：洋葱" value="{{newIngredient}}" bindinput="onInputChange" confirm-type="done" bindconfirm="addIngredient"></input>
+        <button class="add-btn" bindtap="addIngredient">添加</button>
+      </view>
+    </view>
+  </view>
+
+  <view class="common-ingredients">
+    <view class="common-title">🍳 常用食材（点击添加）</view>
+    <view class="common-list">
+      <view class="common-item" wx:for="{{commonIngredients}}" wx:key="*this" bindtap="addCommonIngredient" data-ingredient="{{item}}">
+        {{item}}
+      </view>
+    </view>
+  </view>
+
+  <view class="style-section">
+    <view class="style-title">🍽️ 选择做饭风格</view>
+    <view class="style-list">
+      <view class="style-item {{cookingStyle === 'standard' ? 'active' : ''}}" bindtap="selectStyle" data-style="standard">
+        <text class="style-icon">🏠</text>
+        <text class="style-name">标准</text>
+        <text class="style-desc">家常菜谱</text>
+      </view>
+      <view class="style-item {{cookingStyle === 'diet' ? 'active' : ''}}" bindtap="selectStyle" data-style="diet">
+        <text class="style-icon">🥗</text>
+        <text class="style-name">减脂</text>
+        <text class="style-desc">低脂健康</text>
+      </view>
+      <view class="style-item {{cookingStyle === 'kids' ? 'active' : ''}}" bindtap="selectStyle" data-style="kids">
+        <text class="style-icon">👶</text>
+        <text class="style-name">儿童</text>
+        <text class="style-desc">营养美味</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="tips-section">
+    <view class="tips-card">
+      <text class="tips-text">💡 提示：确认食材后即可生成菜谱，也可以手动添加或删除食材</text>
+    </view>
+  </view>
+
+  <view class="action-section">
+    <button class="btn-primary btn-full" bindtap="generateRecipes">
+      生成菜谱 🎉
+    </button>
+    <button class="btn-secondary btn-full" bindtap="goBack">
+      重新拍照
+    </button>
+  </view>
+</view>

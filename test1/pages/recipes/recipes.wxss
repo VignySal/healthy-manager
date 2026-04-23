@@ -1,0 +1,293 @@
+.container {
+  min-height: 100vh;
+  padding: 40rpx 30rpx;
+  padding-bottom: 120rpx;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 40rpx;
+}
+
+.header-icon {
+  font-size: 72rpx;
+  display: block;
+  margin-bottom: 16rpx;
+}
+
+.header-title {
+  font-size: 38rpx;
+  font-weight: bold;
+  color: #333;
+  display: block;
+  margin-bottom: 20rpx;
+}
+
+.used-ingredients {
+  background: #e8f5e9;
+  border-radius: 16rpx;
+  padding: 20rpx 24rpx;
+}
+
+.used-label {
+  font-size: 26rpx;
+  color: #2e7d32;
+}
+
+.used-list {
+  font-size: 26rpx;
+  color: #388e3c;
+  font-weight: 500;
+}
+
+.recipes-list {
+  margin-bottom: 40rpx;
+}
+
+.recipe-card {
+  background: white;
+  border-radius: 24rpx;
+  padding: 32rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
+}
+
+.recipe-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.recipe-title-section {
+  flex: 1;
+}
+
+.recipe-name {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+  display: block;
+  margin-bottom: 16rpx;
+}
+
+.recipe-meta {
+  display: flex;
+  gap: 24rpx;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.meta-icon {
+  font-size: 28rpx;
+}
+
+.meta-text {
+  font-size: 26rpx;
+  color: #666;
+}
+
+.expand-icon {
+  font-size: 32rpx;
+  color: #999;
+  transition: transform 0.3s;
+}
+
+.expand-icon .expanded {
+  display: inline-block;
+  transform: rotate(180deg);
+}
+
+.recipe-details {
+  margin-top: 32rpx;
+  padding-top: 32rpx;
+  border-top: 2rpx solid #f0f0f0;
+}
+
+.section {
+  margin-bottom: 32rpx;
+}
+
+.section-title {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20rpx;
+}
+
+.ingredients-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.ingredient-item {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.ingredient-dot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+  background: #4CAF50;
+}
+
+.ingredient-dot.missing {
+  background: #ff9800;
+}
+
+.ingredient-name {
+  font-size: 28rpx;
+  color: #333;
+}
+
+.ingredient-name.missing-text {
+  color: #f57c00;
+}
+
+.ingredient-status {
+  font-size: 24rpx;
+  color: #ff9800;
+}
+
+.buy-section {
+  margin-bottom: 32rpx;
+}
+
+.buy-btn {
+  background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+  color: white;
+  border-radius: 50rpx;
+  padding: 20rpx 40rpx;
+  font-size: 28rpx;
+  border: none;
+  width: 100%;
+}
+
+.buy-btn::after {
+  border: none;
+}
+
+.steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.step-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 20rpx;
+}
+
+.step-number {
+  min-width: 48rpx;
+  height: 48rpx;
+  background: linear-gradient(135deg, #81C784 0%, #4CAF50 100%);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.step-text {
+  flex: 1;
+  font-size: 28rpx;
+  color: #555;
+  line-height: 1.6;
+  padding-top: 8rpx;
+}
+
+.tips-section {
+  margin-bottom: 40rpx;
+}
+
+.tips-card {
+  background: #fff3e0;
+  border-radius: 16rpx;
+  padding: 24rpx;
+}
+
+.tips-text {
+  font-size: 26rpx;
+  color: #e65100;
+}
+
+.action-section {
+  position: fixed;
+  bottom: 40rpx;
+  left: 30rpx;
+  right: 30rpx;
+}
+
+.btn-full {
+  width: 100%;
+  padding: 28rpx;
+  font-size: 32rpx;
+}
+
+/* 添加到饮食记录样式 */
+.meal-selection {
+  margin-top: 24rpx;
+}
+
+.selection-hint {
+  font-size: 28rpx;
+  color: #666;
+  display: block;
+  margin-bottom: 20rpx;
+}
+
+.meal-options {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 24rpx;
+  gap: 12rpx;
+}
+
+.meal-option {
+  flex: 1;
+  background: #f5f5f5;
+  border-radius: 16rpx;
+  padding: 16rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+  border: 2rpx solid transparent;
+  transition: all 0.2s;
+}
+
+.meal-option.active {
+  background: #e8f5e9;
+  border-color: #4CAF50;
+  color: #2e7d32;
+}
+
+.meal-option-icon {
+  font-size: 32rpx;
+}
+
+.btn-save-to-diary {
+  background: linear-gradient(135deg, #4CAF50 0%, #2e7d32 100%);
+  color: white;
+  border-radius: 50rpx;
+  padding: 20rpx 40rpx;
+  font-size: 28rpx;
+  border: none;
+  width: 100%;
+  box-shadow: 0 4rpx 16rpx rgba(76, 175, 80, 0.3);
+}
+
+.btn-save-to-diary::after {
+  border: none;
+}

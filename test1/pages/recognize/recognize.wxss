@@ -1,0 +1,265 @@
+.container {
+  min-height: 100vh;
+  padding: 40rpx 30rpx;
+}
+
+.result-header {
+  text-align: center;
+  margin-bottom: 40rpx;
+}
+
+.result-icon {
+  font-size: 80rpx;
+  display: block;
+  margin-bottom: 16rpx;
+}
+
+.result-title {
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #333;
+  display: block;
+  margin-bottom: 12rpx;
+}
+
+.result-subtitle {
+  font-size: 28rpx;
+  color: #666;
+}
+
+.image-preview-section {
+  text-align: center;
+  margin-bottom: 40rpx;
+}
+
+.preview-card {
+  display: inline-block;
+  padding: 12rpx;
+  background: white;
+  border-radius: 16rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.1);
+}
+
+.preview-small {
+  width: 200rpx;
+  height: 200rpx;
+  border-radius: 12rpx;
+}
+
+.ingredients-section {
+  margin-bottom: 30rpx;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 24rpx;
+}
+
+.ingredients-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.ingredient-tag {
+  display: inline-flex;
+  align-items: center;
+  background: linear-gradient(135deg, #81C784 0%, #4CAF50 100%);
+  color: white;
+  padding: 16rpx 28rpx;
+  border-radius: 40rpx;
+  font-size: 28rpx;
+  box-shadow: 0 4rpx 12rpx rgba(76, 175, 80, 0.3);
+}
+
+.tag-remove {
+  margin-left: 16rpx;
+  font-size: 36rpx;
+  line-height: 1;
+  opacity: 0.8;
+}
+
+.empty-ingredients {
+  background: #f8f9fa;
+  border-radius: 16rpx;
+  padding: 32rpx;
+  text-align: center;
+  border: 2rpx dashed #ddd;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 16rpx;
+  display: block;
+}
+
+.empty-hint {
+  font-size: 26rpx;
+  color: #999;
+  display: block;
+  margin-bottom: 8rpx;
+  text-align: left;
+  margin-left: 24rpx;
+}
+
+.add-section {
+  margin-bottom: 30rpx;
+}
+
+.add-card {
+  background: white;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.08);
+}
+
+.add-title {
+  font-size: 28rpx;
+  color: #333;
+  margin-bottom: 20rpx;
+}
+
+.add-input-wrapper {
+  display: flex;
+  gap: 16rpx;
+}
+
+.add-input {
+  flex: 1;
+  background: #f5f5f5;
+  border-radius: 12rpx;
+  padding: 20rpx 24rpx;
+  font-size: 28rpx;
+}
+
+.add-btn {
+  background: #4CAF50;
+  color: white;
+  border-radius: 12rpx;
+  padding: 20rpx 32rpx;
+  font-size: 28rpx;
+  border: none;
+  margin: 0;
+}
+
+.add-btn::after {
+  border: none;
+}
+
+.common-ingredients {
+  margin-bottom: 30rpx;
+}
+
+.common-title {
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 20rpx;
+}
+
+.common-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.common-item {
+  background: #f0f0f0;
+  color: #666;
+  padding: 14rpx 24rpx;
+  border-radius: 30rpx;
+  font-size: 26rpx;
+}
+
+.style-section {
+  margin-bottom: 30rpx;
+}
+
+.style-title {
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 20rpx;
+}
+
+.style-list {
+  display: flex;
+  gap: 16rpx;
+}
+
+.style-item {
+  flex: 1;
+  background: white;
+  border-radius: 16rpx;
+  padding: 24rpx 16rpx;
+  text-align: center;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.08);
+  border: 2rpx solid transparent;
+  transition: all 0.3s;
+}
+
+.style-item.active {
+  background: linear-gradient(135deg, #81C784 0%, #4CAF50 100%);
+  color: white;
+  border-color: #4CAF50;
+  box-shadow: 0 4rpx 16rpx rgba(76, 175, 80, 0.3);
+}
+
+.style-icon {
+  font-size: 48rpx;
+  display: block;
+  margin-bottom: 12rpx;
+}
+
+.style-name {
+  font-size: 28rpx;
+  font-weight: bold;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.style-desc {
+  font-size: 22rpx;
+  opacity: 0.9;
+  display: block;
+}
+
+.tips-section {
+  margin-bottom: 40rpx;
+}
+
+.tips-card {
+  background: #e3f2fd;
+  border-radius: 16rpx;
+  padding: 24rpx;
+}
+
+.tips-text {
+  font-size: 26rpx;
+  color: #1565c0;
+}
+
+.action-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.btn-full {
+  width: 100%;
+  padding: 28rpx;
+  font-size: 32rpx;
+}
+
+.btn-secondary {
+  background: white;
+  color: #666;
+  border: 2rpx solid #ddd;
+  border-radius: 50rpx;
+  box-shadow: none;
+}
+
+.btn-secondary:active {
+  background: #f5f5f5;
+}

@@ -1,0 +1,84 @@
+<view class="container">
+  <view class="header">
+    <view class="logo-section">
+      <text class="logo-icon">📸</text>
+      <text class="title">冰箱清空大师</text>
+    </view>
+    <text class="subtitle">让剩菜变身美味佳肴</text>
+  </view>
+
+  <view class="upload-section">
+    <view class="upload-card">
+      <view class="preview-area" wx:if="{{selectedImage}}">
+        <image src="{{selectedImage}}" mode="aspectFit" class="preview-image"></image>
+        <view class="remove-btn" bindtap="removeImage">
+          <text class="remove-icon">×</text>
+        </view>
+      </view>
+      <view class="upload-area" wx:else bindtap="chooseImage">
+        <view class="upload-icon">📷</view>
+        <text class="upload-text">点击拍照或上传食材照片</text>
+        <text class="upload-hint">冰箱内部或剩余食材都可以</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="action-section">
+    <button class="btn-primary btn-full" wx:if="{{selectedImage}}" bindtap="startRecognize">
+      开始识别食材 🎯
+    </button>
+    <button class="btn-secondary btn-full" bindtap="manualAddIngredients">
+      手动添加食材 ✏️
+    </button>
+  </view>
+
+  <!-- 功能按钮区域 -->
+  <view class="feature-buttons">
+    <view class="feature-button-group">
+      <view class="feature-button" bindtap="goToDietOverview">
+        <view class="feature-button-icon">📊</view>
+        <text class="feature-button-text">饮食概览</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="tips-section">
+    <view class="tips-card">
+      <view class="tips-title">💡 使用小技巧</view>
+      <view class="tips-list">
+        <view class="tip-item">
+          <text class="tip-icon">✅</text>
+          <text class="tip-text">确保光线充足，食材清晰可见</text>
+        </view>
+        <view class="tip-item">
+          <text class="tip-icon">✅</text>
+          <text class="tip-text">主要食材放在显眼位置</text>
+        </view>
+        <view class="tip-item">
+          <text class="tip-icon">✅</text>
+          <text class="tip-text">可多次尝试获得更准确结果</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+
+
+  <view class="feature-section">
+    <view class="feature-title">核心功能</view>
+    <view class="feature-list">
+      <view class="feature-item">
+        <view class="feature-icon">🔍</view>
+        <text class="feature-text">智能识别</text>
+      </view>
+      <view class="feature-item">
+        <view class="feature-icon">📝</view>
+        <text class="feature-text">菜谱生成</text>
+      </view>
+      <view class="feature-item">
+        <view class="feature-icon">🌱</view>
+        <text class="feature-text">减少浪费</text>
+      </view>
+    </view>
+  </view>
+</view>

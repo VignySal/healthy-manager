@@ -1,0 +1,45 @@
+<view class="container">
+  <view class="header">
+    <text class="header-icon">🏥</text>
+    <text class="header-title">健康分析中心</text>
+    <text class="header-subtitle">您的健康助手</text>
+  </view>
+
+  <view class="options-section">
+    <view class="option-card" bindtap="goToFridgeMaster">
+      <view class="option-icon">🧊</view>
+      <view class="option-content">
+        <text class="option-title">冰箱清空大师</text>
+        <text class="option-desc">基于图像识别的剩菜变身计划</text>
+        <text class="option-detail">上传冰箱食材照片，生成菜谱</text>
+      </view>
+      <view class="option-arrow">→</view>
+    </view>
+
+    <view class="option-card" bindtap="goToCalorieScanner">
+      <view class="option-icon">🔥</view>
+      <view class="option-content">
+        <text class="option-title">卡路里识别</text>
+        <text class="option-desc">拍照识别食物卡路里</text>
+        <text class="option-detail">上传食物照片，识别卡路里含量</text>
+      </view>
+      <view class="option-arrow">→</view>
+    </view>
+
+    <view class="option-card" bindtap="goToDietOverview">
+      <view class="option-icon">📊</view>
+      <view class="option-content">
+        <text class="option-title">饮食概览</text>
+        <text class="option-desc">查看每日饮食记录</text>
+        <text class="option-detail">管理您的每日卡路里摄入情况</text>
+      </view>
+      <view class="option-arrow">→</view>
+    </view>
+  </view>
+
+  <view class="tips-section">
+    <view class="tips-card">
+      <text class="tips-text">💡 提示：选择您需要的功能开始使用</text>
+    </view>
+  </view>
+</view>

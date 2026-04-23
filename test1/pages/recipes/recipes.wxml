@@ -1,0 +1,112 @@
+<view class="container">
+  <view class="header">
+    <text class="header-icon">🎉</text>
+    <text class="header-title">为您精选的菜谱</text>
+    <view class="used-ingredients">
+      <text class="used-label">使用食材：</text>
+      <text class="used-list">{{ingredientsText}}</text>
+    </view>
+  </view>
+
+  <view class="recipes-list">
+    <view class="recipe-card" wx:for="{{recipes}}" wx:key="name" bindtap="toggleRecipe" data-index="{{index}}">
+      <view class="recipe-header">
+        <view class="recipe-title-section">
+          <text class="recipe-name">{{item.name}}</text>
+          <view class="recipe-meta">
+            <view class="meta-item">
+              <text class="meta-icon">⏱️</text>
+              <text class="meta-text">{{item.cookTime}}</text>
+            </view>
+            <view class="meta-item">
+              <text class="meta-icon">📊</text>
+              <text class="meta-text">{{item.difficulty}}</text>
+            </view>
+            <view class="meta-item">
+              <text class="meta-icon">🔥</text>
+              <text class="meta-text">{{(item.calories || '约300') + '卡路里'}}</text>
+            </view>
+          </view>
+        </view>
+        <view class="expand-icon">
+          <text class="{{expandedIndex === index ? 'expanded' : ''}}">▼</text>
+        </view>
+      </view>
+
+      <view class="recipe-details" wx:if="{{expandedIndex === index}}">
+        <view class="section">
+          <view class="section-title">🥘 所需食材</view>
+          <view class="ingredients-list">
+            <view class="ingredient-item" wx:for="{{item.ingredients}}" wx:for-item="ing" wx:key="*this">
+              <text class="ingredient-dot {{item.missingIngredients.includes(ing) ? 'missing' : ''}}"></text>
+              <text class="ingredient-name {{item.missingIngredients.includes(ing) ? 'missing-text' : ''}}">{{ing}}</text>
+              <text class="ingredient-status" wx:if="{{item.missingIngredients.includes(ing)}}">(需要购买)</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="buy-section" wx:if="{{item.missingIngredients.length > 0}}">
+          <button class="buy-btn" catchtap="buyIngredients" data-missing="{{item.missingIngredients}}">
+            🛒 一键购买缺食材
+          </button>
+        </view>
+
+        <view class="section">
+          <view class="section-title">👨‍🍳 烹饪步骤</view>
+          <view class="steps-list">
+            <view class="step-item" wx:for="{{item.steps}}" wx:for-item="step" wx:for-index="stepIndex" wx:key="stepIndex">
+              <view class="step-number">{{stepIndex + 1}}</view>
+              <text class="step-text">{{step}}</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 添加到饮食记录 -->
+        <view class="section" wx:if="{{expandedIndex === index}}">
+          <view class="section-title">📝 添加到饮食记录</view>
+          <view class="meal-selection">
+            <text class="selection-hint">选择餐次：</text>
+            <view class="meal-options">
+              <button class="meal-option {{selectedMeals && selectedMeals[index] === 'breakfast' ? 'active' : ''}}"
+                      data-index="{{index}}" data-meal="breakfast" catchtap="selectMeal">
+                <text class="meal-option-icon">🌅</text>
+                <text>早餐</text>
+              </button>
+              <button class="meal-option {{selectedMeals && selectedMeals[index] === 'lunch' ? 'active' : ''}}"
+                      data-index="{{index}}" data-meal="lunch" catchtap="selectMeal">
+                <text class="meal-option-icon">☀️</text>
+                <text>午餐</text>
+              </button>
+              <button class="meal-option {{selectedMeals && selectedMeals[index] === 'dinner' ? 'active' : ''}}"
+                      data-index="{{index}}" data-meal="dinner" catchtap="selectMeal">
+                <text class="meal-option-icon">🌙</text>
+                <text>晚餐</text>
+              </button>
+              <button class="meal-option {{selectedMeals && selectedMeals[index] === 'snacks' ? 'active' : ''}}"
+                      data-index="{{index}}" data-meal="snacks" catchtap="selectMeal">
+                <text class="meal-option-icon">🍰</text>
+                <text>加餐</text>
+              </button>
+            </view>
+            <button class="btn-save-to-diary" wx:if="{{selectedMeals && selectedMeals[index]}}"
+                    data-index="{{index}}" catchtap="saveToDietOverview">
+              保存卡路里到饮食记录 📊
+            </button>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="tips-section">
+    <view class="tips-card">
+      <text class="tips-text">💡 提示：点击菜谱卡片可查看详细做法，绿色圆点表示已有食材</text>
+    </view>
+  </view>
+
+  <view class="action-section">
+    <button class="btn-primary btn-full" bindtap="startOver">
+      再来一次 🔄
+    </button>
+  </view>
+</view>

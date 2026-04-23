@@ -1,0 +1,191 @@
+<view class="container">
+  <!-- 日期选择器 -->
+  <view class="date-section">
+    <picker mode="date" value="{{currentDate}}" bindchange="bindDateChange">
+      <view class="picker-box">
+        <text class="picker-label">选择日期：</text>
+        <text class="picker-value">{{currentDate}}</text>
+        <text class="picker-icon">📅</text>
+      </view>
+    </picker>
+  </view>
+
+  <!-- 环形进度条区域 -->
+  <view class="progress-section">
+    <view class="progress-card">
+      <text class="progress-title">今日卡路里摄入</text>
+
+      <!-- 环形进度条 -->
+      <view class="progress-circle-container">
+        <view class="progress-circle"
+              style="background: conic-gradient({{getProgressColor()}} 0% {{getProgressPercentage()}}%, #f0f0f0 {{getProgressPercentage()}}% 100%)">
+          <view class="progress-inner">
+            <text class="progress-calories">{{totalCalories}}</text>
+            <text class="progress-label">/ {{dailyGoal}}</text>
+            <text class="progress-unit">千卡</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 进度提示 -->
+      <view class="progress-tips">
+        <text class="progress-percentage">{{getProgressPercentage()}}%</text>
+        <text class="progress-status">
+          <text wx:if="{{getProgressPercentage() < 50}}">继续加油！</text>
+          <text wx:elif="{{getProgressPercentage() < 80}}">摄入良好</text>
+          <text wx:else>注意控制</text>
+        </text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 饮食记录列表 -->
+  <view class="meals-section">
+    <!-- 早餐 -->
+    <view class="meal-card" wx:if="{{meals.breakfast.length > 0}}">
+      <view class="meal-header">
+        <text class="meal-icon">🌅</text>
+        <text class="meal-title">早餐</text>
+        <text class="meal-count">{{meals.breakfast.length}} 项</text>
+      </view>
+      <view class="meal-list">
+        <view class="food-item" wx:for="{{meals.breakfast}}" wx:key="id" bindtap="viewFoodDetail" data-food="{{item}}" data-meal-type="breakfast" data-index="{{index}}">
+          <view class="food-image" wx:if="{{item.image}}">
+            <image src="{{item.image}}" mode="aspectFill"></image>
+          </view>
+          <view class="food-info">
+            <text class="food-name">{{item.name}}</text>
+            <text class="food-calories">{{item.calories}} 千卡{{item.shareCount && item.shareCount > 1 ? ' (总:' + (item.inputCalories ? item.inputCalories : item.calories * item.shareCount) + '千卡/' + item.shareCount + '人)' : ''}}</text>
+            <text class="food-time">{{item.time}}</text>
+          </view>
+          <view class="delete-btn" catchtap="deleteRecord" data-meal-type="breakfast" data-index="{{index}}">
+            <text class="delete-icon">✕</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 午餐 -->
+    <view class="meal-card" wx:if="{{meals.lunch.length > 0}}">
+      <view class="meal-header">
+        <text class="meal-icon">☀️</text>
+        <text class="meal-title">午餐</text>
+        <text class="meal-count">{{meals.lunch.length}} 项</text>
+      </view>
+      <view class="meal-list">
+        <view class="food-item" wx:for="{{meals.lunch}}" wx:key="id" bindtap="viewFoodDetail" data-food="{{item}}" data-meal-type="lunch" data-index="{{index}}">
+          <view class="food-image" wx:if="{{item.image}}">
+            <image src="{{item.image}}" mode="aspectFill"></image>
+          </view>
+          <view class="food-info">
+            <text class="food-name">{{item.name}}</text>
+            <text class="food-calories">{{item.calories}} 千卡{{item.shareCount && item.shareCount > 1 ? ' (总:' + (item.inputCalories ? item.inputCalories : item.calories * item.shareCount) + '千卡/' + item.shareCount + '人)' : ''}}</text>
+            <text class="food-time">{{item.time}}</text>
+          </view>
+          <view class="delete-btn" catchtap="deleteRecord" data-meal-type="lunch" data-index="{{index}}">
+            <text class="delete-icon">✕</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 晚餐 -->
+    <view class="meal-card" wx:if="{{meals.dinner.length > 0}}">
+      <view class="meal-header">
+        <text class="meal-icon">🌙</text>
+        <text class="meal-title">晚餐</text>
+        <text class="meal-count">{{meals.dinner.length}} 项</text>
+      </view>
+      <view class="meal-list">
+        <view class="food-item" wx:for="{{meals.dinner}}" wx:key="id" bindtap="viewFoodDetail" data-food="{{item}}" data-meal-type="dinner" data-index="{{index}}">
+          <view class="food-image" wx:if="{{item.image}}">
+            <image src="{{item.image}}" mode="aspectFill"></image>
+          </view>
+          <view class="food-info">
+            <text class="food-name">{{item.name}}</text>
+            <text class="food-calories">{{item.calories}} 千卡{{item.shareCount && item.shareCount > 1 ? ' (总:' + (item.inputCalories ? item.inputCalories : item.calories * item.shareCount) + '千卡/' + item.shareCount + '人)' : ''}}</text>
+            <text class="food-time">{{item.time}}</text>
+          </view>
+          <view class="delete-btn" catchtap="deleteRecord" data-meal-type="dinner" data-index="{{index}}">
+            <text class="delete-icon">✕</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 加餐 -->
+    <view class="meal-card" wx:if="{{meals.snacks.length > 0}}">
+      <view class="meal-header">
+        <text class="meal-icon">🍰</text>
+        <text class="meal-title">加餐</text>
+        <text class="meal-count">{{meals.snacks.length}} 项</text>
+      </view>
+      <view class="meal-list">
+        <view class="food-item" wx:for="{{meals.snacks}}" wx:key="id" bindtap="viewFoodDetail" data-food="{{item}}" data-meal-type="snacks" data-index="{{index}}">
+          <view class="food-image" wx:if="{{item.image}}">
+            <image src="{{item.image}}" mode="aspectFill"></image>
+          </view>
+          <view class="food-info">
+            <text class="food-name">{{item.name}}</text>
+            <text class="food-calories">{{item.calories}} 千卡{{item.shareCount && item.shareCount > 1 ? ' (总:' + (item.inputCalories ? item.inputCalories : item.calories * item.shareCount) + '千卡/' + item.shareCount + '人)' : ''}}</text>
+            <text class="food-time">{{item.time}}</text>
+          </view>
+          <view class="delete-btn" catchtap="deleteRecord" data-meal-type="snacks" data-index="{{index}}">
+            <text class="delete-icon">✕</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 空状态提示 -->
+    <view class="empty-state" wx:if="{{meals.breakfast.length === 0 && meals.lunch.length === 0 && meals.dinner.length === 0 && meals.snacks.length === 0}}">
+      <text class="empty-icon">🍽️</text>
+      <text class="empty-text">今天还没有记录饮食哦</text>
+      <text class="empty-hint">点击下方按钮开始记录</text>
+    </view>
+  </view>
+
+  <!-- 食物编辑弹窗 -->
+  <view class="edit-dialog" wx:if="{{showEditDialog}}">
+    <view class="dialog-mask" catchtap="closeEditDialog"></view>
+    <view class="dialog-content">
+      <view class="dialog-header">
+        <text class="dialog-title">编辑食物信息</text>
+        <text class="dialog-close" catchtap="closeEditDialog">×</text>
+      </view>
+      <view class="dialog-body">
+        <view class="edit-field">
+          <text class="edit-label">食物名称</text>
+          <text class="edit-value">{{editingFood.name}}</text>
+        </view>
+        <view class="edit-field">
+          <text class="edit-label">卡路里（千卡）</text>
+          <input class="edit-input" type="number" placeholder="请输入卡路里"
+                 value="{{editCalories}}" bindinput="onCaloriesInput" />
+        </view>
+        <view class="edit-field">
+          <text class="edit-label">一起吃饭的人数</text>
+          <input class="edit-input" type="number" placeholder="请输入人数"
+                 value="{{editShareCount}}" bindinput="onShareCountInput" />
+          <text class="edit-hint">记录一起吃饭的人数，用于参考</text>
+        </view>
+        <view class="edit-field">
+          <text class="edit-label">摄入时间</text>
+          <text class="edit-value">{{editingFood.time}}</text>
+        </view>
+      </view>
+      <view class="dialog-footer">
+        <button class="dialog-btn dialog-btn-cancel" catchtap="closeEditDialog">取消</button>
+        <button class="dialog-btn dialog-btn-save" catchtap="saveFoodEdit">保存</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 添加按钮 -->
+  <view class="add-btn-section">
+    <button class="add-btn" bindtap="goToCalorie">
+      <text class="add-icon">+</text>
+      <text class="add-text">添加食物</text>
+    </button>
+  </view>
+</view>
