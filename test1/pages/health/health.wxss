@@ -95,6 +95,49 @@
   margin-left: 20rpx;
 }
 
+.duo-section {
+  display: flex;
+  gap: 20rpx;
+}
+
+.duo-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: white;
+  border-radius: 20rpx;
+  padding: 36rpx 20rpx;
+  box-shadow: 0 4rpx 24rpx rgba(0, 0, 0, 0.08);
+  border: 2rpx solid transparent;
+  transition: all 0.3s ease;
+}
+
+.duo-card:hover {
+  transform: translateY(-4rpx);
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.12);
+  border-color: #4CAF50;
+}
+
+.duo-icon {
+  font-size: 64rpx;
+  margin-bottom: 16rpx;
+}
+
+.duo-title {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #333;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.duo-desc {
+  font-size: 22rpx;
+  color: #999;
+  display: block;
+}
+
 .tips-section {
   margin-top: 40rpx;
 }

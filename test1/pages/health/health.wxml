@@ -6,14 +6,17 @@
   </view>
 
   <view class="options-section">
-    <view class="option-card" bindtap="goToFridgeMaster">
-      <view class="option-icon">🧊</view>
-      <view class="option-content">
-        <text class="option-title">冰箱清空大师</text>
-        <text class="option-desc">基于图像识别的剩菜变身计划</text>
-        <text class="option-detail">上传冰箱食材照片，生成菜谱</text>
+    <view class="duo-section">
+      <view class="duo-card" bindtap="goToFridgeScan">
+        <view class="duo-icon">🧊</view>
+        <text class="duo-title">冰箱扫描</text>
+        <text class="duo-desc">拍照识别食材</text>
       </view>
-      <view class="option-arrow">→</view>
+      <view class="duo-card" bindtap="goToManualSelect">
+        <view class="duo-icon">✏️</view>
+        <text class="duo-title">食材自选</text>
+        <text class="duo-desc">手动添加食材</text>
+      </view>
     </view>
 
     <view class="option-card" bindtap="goToCalorieScanner">

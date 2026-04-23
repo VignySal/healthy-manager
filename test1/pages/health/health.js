@@ -1,3 +1,5 @@
+const app = getApp()
+
 Page({
   data: {
   },
@@ -6,9 +8,17 @@ Page({
     console.log('健康分析页面加载');
   },
 
-  goToFridgeMaster() {
+  goToFridgeScan() {
     wx.navigateTo({
       url: '/pages/index/index'
+    });
+  },
+
+  goToManualSelect() {
+    app.globalData.recognizedIngredients = [];
+    app.globalData.selectedImage = null;
+    wx.navigateTo({
+      url: '/pages/recognize/recognize'
     });
   },
 

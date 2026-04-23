@@ -173,6 +173,63 @@
   font-size: 26rpx;
 }
 
+.time-section {
+  margin-bottom: 30rpx;
+}
+
+.time-title {
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 20rpx;
+}
+
+.time-list {
+  display: flex;
+  gap: 16rpx;
+}
+
+.time-item {
+  flex: 1;
+  background: white;
+  border-radius: 16rpx;
+  padding: 24rpx 12rpx;
+  text-align: center;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.08);
+  border: 2rpx solid transparent;
+  transition: all 0.3s;
+}
+
+.time-item.active {
+  background: linear-gradient(135deg, #81C784 0%, #4CAF50 100%);
+  color: white;
+  border-color: #4CAF50;
+  box-shadow: 0 4rpx 16rpx rgba(76, 175, 80, 0.3);
+}
+
+.time-value {
+  font-size: 28rpx;
+  font-weight: bold;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.time-unit {
+  font-size: 22rpx;
+  opacity: 0.9;
+  display: block;
+}
+
+.time-custom-input {
+  width: 100rpx;
+  height: 48rpx;
+  font-size: 24rpx;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 8rpx;
+  margin-top: 8rpx;
+  color: inherit;
+}
+
 .style-section {
   margin-bottom: 30rpx;
 }

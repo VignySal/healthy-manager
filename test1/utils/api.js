@@ -108,7 +108,7 @@ const extractIngredientsFromText = (text) => {
 };
 
 // 使用阿里云API生成菜谱
-const generateRecipes = (ingredients, cookingStyle = 'standard') => {
+const generateRecipes = (ingredients, cookingStyle = 'standard', cookingTime = 0) => {
   return new Promise((resolve, reject) => {
     // 根据不同风格生成不同的prompt
     let stylePrompt = '';
@@ -128,21 +128,29 @@ const generateRecipes = (ingredients, cookingStyle = 'standard') => {
         styleDescription = '标准家常';
     }
 
+    // 时间约束
+    let timePrompt = '';
+    if (cookingTime > 0) {
+      timePrompt = `【硬性要求】用户只有${cookingTime}分钟的做饭时间。所有推荐菜谱的cookTime不得超过${cookingTime}分钟，超过此时间的菜一律不要推荐。`;
+    }
+
     const prompt = `
-    <|no_think|>
-你是一个专业的厨师。请根据用户提供的食材：${ingredients.join('、')}，推荐 3 道家常菜。
+<|no_think|>
+你是一个专业的厨师。请根据用户提供的食材：${ingredients.join('、')}，严格推荐 3 道家常菜。必须返回恰好3道菜，不能多也不能少。
 
 ${stylePrompt}
+
+${timePrompt}
 
 重要说明：你可以使用部分食材来生成菜谱，不需要使用所有食材。
 
 请严格遵守以下规则：
 1. 仅输出标准的 JSON 格式数据，不要包含 markdown 标记（如 \`\`\`json），不要包含任何解释性文字。
-2. 返回的数据必须是一个对象数组。
+2. 返回的数据必须是一个包含恰好3个元素的对象数组。
 3. 每个对象必须包含以下字段：
    - "name": 菜名 (字符串)
    - "difficulty": 难度 (字符串，如：简单/中等/困难)
-   - "cookTime": 烹饪时间 (字符串，如：15分钟)
+   - "cookTime": 烹饪时间 (字符串，如：15分钟，必须真实反映实际烹饪耗时)
    - "calories": 大概的卡路里含量 (字符串，如：约300)
    - "ingredients": 所需所有食材列表 (数组)
    - "steps": 烹饪步骤 (字符串数组，例如 ["1. 热锅凉油", "2. 下入食材..."])
@@ -160,7 +168,7 @@ ${stylePrompt}
         'Authorization': `Bearer ${API_KEY}`
       },
       data: {
-        model: 'qwen3.5-plus',
+        model: 'qwen3.6-flash',
         messages: [
           {
             role: 'system',
@@ -171,7 +179,7 @@ ${stylePrompt}
             content: prompt
           }
         ],
-        max_tokens: 3000,
+        max_tokens: 4000,
         temperature: 0.7
         // 移除response_format，让模型自由返回格式
       },
@@ -183,316 +191,78 @@ ${stylePrompt}
           const content = response.data.choices[0].message.content;
           console.log('AI返回内容:', content);
 
-          // 直接使用备用解析方法，因为模型可能返回非JSON格式
-          console.log('使用备用解析方法');
-          const fallbackRecipes = parseRecipes(content, ingredients);
-          console.log('备用解析结果:', fallbackRecipes);
-
-          resolve({
-            success: true,
-            recipes: fallbackRecipes
-          });
+          try {
+            const recipes = parseRecipes(content, ingredients);
+            resolve({ success: true, recipes });
+          } catch (parseErr) {
+            console.error('解析菜谱失败:', parseErr);
+            resolve({ success: false, recipes: [] });
+          }
         } else {
           console.error('API调用失败，返回数据:', response);
-          // 当API调用失败时，返回默认菜谱
-          const defaultRecipes = getDefaultRecipes(ingredients);
-          console.log('API调用失败，返回默认菜谱:', defaultRecipes);
-          resolve({
-            success: true,
-            recipes: defaultRecipes
-          });
+          resolve({ success: false, recipes: [] });
         }
       },
       fail: (err) => {
         console.error('API请求失败:', err);
-        // 当网络请求失败时，返回默认菜谱
-        const defaultRecipes = getDefaultRecipes(ingredients);
-        console.log('网络请求失败，返回默认菜谱:', defaultRecipes);
-        resolve({
-          success: true,
-          recipes: defaultRecipes
-        });
+        resolve({ success: false, recipes: [] });
       }
     });
   });
 };
 
-// 解析AI生成的菜谱（备用方法）
-const parseRecipes = (content, userIngredients) => {
-  try {
-    // 首先尝试解析JSON格式
-    try {
-      console.log('尝试解析JSON格式');
-      const parsedContent = JSON.parse(content);
-      const recipesArray = Array.isArray(parsedContent) ? parsedContent : [parsedContent];
+// 从AI返回内容中提取JSON字符串
+const extractJSON = (content) => {
+  // 1. 去掉markdown代码块包裹
+  let text = content.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/,'').trim();
 
-      // 处理解析后的菜谱数据
-      const processedRecipes = recipesArray.map(recipe => {
-        // 确保所有必要字段存在
-        const processedRecipe = {
-          name: recipe.name || '未知菜谱',
-          ingredients: recipe.ingredients || [],
-          missingIngredients: recipe.ingredients ? recipe.ingredients.filter(ing => !userIngredients.includes(ing)) : [],
-          difficulty: recipe.difficulty || '简单',
-          cookTime: recipe.cookTime || '30分钟',
-          calories: recipe.calories || '约300',
-          steps: recipe.steps || []
-        };
-        return processedRecipe;
-      });
+  // 2. 尝试直接解析
+  try { JSON.parse(text); return text; } catch(e) {}
 
-      console.log('JSON解析成功，处理后的菜谱:', processedRecipes);
-      return processedRecipes;
-    } catch (jsonError) {
-      console.log('JSON解析失败，尝试文本解析:', jsonError);
-      // JSON解析失败，尝试文本解析
-      const recipes = [];
-      const recipeTexts = content.split('\n\n');
-
-      let currentRecipe = null;
-      recipeTexts.forEach(text => {
-        text = text.trim();
-        if (!text) return;
-
-        // 尝试匹配JSON格式的字段
-        if (text.includes('"name"') || text.includes("'name'")) {
-          if (currentRecipe) {
-            recipes.push(currentRecipe);
-          }
-          // 提取菜名
-          const nameMatch = text.match(/"name"\s*:\s*["']([^"']+)["']/);
-          currentRecipe = {
-            name: nameMatch ? nameMatch[1] : '未知菜谱',
-            ingredients: [],
-            missingIngredients: [],
-            difficulty: '简单',
-            cookTime: '30分钟',
-            calories: '约300',
-            steps: []
-          };
-        } else if (text.includes('"difficulty"') || text.includes("'difficulty'")) {
-          if (currentRecipe) {
-            const difficultyMatch = text.match(/"difficulty"\s*:\s*["']([^"']+)["']/);
-            if (difficultyMatch) {
-              currentRecipe.difficulty = difficultyMatch[1];
-            }
-          }
-        } else if (text.includes('"cookTime"') || text.includes("'cookTime'")) {
-          if (currentRecipe) {
-            const cookTimeMatch = text.match(/"cookTime"\s*:\s*["']([^"']+)["']/);
-            if (cookTimeMatch) {
-              currentRecipe.cookTime = cookTimeMatch[1];
-            }
-          }
-        } else if (text.includes('"calories"') || text.includes("'calories'")) {
-          if (currentRecipe) {
-            const caloriesMatch = text.match(/"calories"\s*:\s*["']([^"']+)["']/);
-            if (caloriesMatch) {
-              currentRecipe.calories = caloriesMatch[1];
-            }
-          }
-        } else if (text.includes('"ingredients"') || text.includes("'ingredients'")) {
-          if (currentRecipe) {
-            // 提取食材数组
-            const ingredientsMatch = text.match(/"ingredients"\s*:\s*\[(.*?)\]/s);
-            if (ingredientsMatch) {
-              const ingredientsText = ingredientsMatch[1];
-              const ingredientList = ingredientsText.split(/[,，]/).map(item =>
-                item.replace(/["']/g, '').trim()
-              ).filter(item => item);
-              currentRecipe.ingredients = ingredientList;
-              currentRecipe.missingIngredients = ingredientList.filter(ing => !userIngredients.includes(ing));
-            }
-          }
-        } else if (text.includes('"steps"') || text.includes("'steps'")) {
-          if (currentRecipe) {
-            // 提取步骤数组
-            const stepsMatch = text.match(/"steps"\s*:\s*\[(.*?)\]/s);
-            if (stepsMatch) {
-              const stepsText = stepsMatch[1];
-              const stepList = stepsText.split(/[,，]/).map(item =>
-                item.replace(/["']/g, '').trim()
-              ).filter(item => item);
-              currentRecipe.steps = stepList;
-            }
-          }
-        } else if (text.includes('菜名：') || text.includes('菜谱：')) {
-          if (currentRecipe) {
-            recipes.push(currentRecipe);
-          }
-          currentRecipe = {
-            name: text.replace('菜名：', '').replace('菜谱：', '').trim(),
-            ingredients: [],
-            missingIngredients: [],
-            difficulty: '简单',
-            cookTime: '30分钟',
-            calories: '约300',
-            steps: []
-          };
-        } else if (text.includes('所需食材：') || text.includes('食材：')) {
-          if (currentRecipe) {
-            const ingredientsText = text.replace('所需食材：', '').replace('食材：', '').trim();
-            const ingredientList = ingredientsText.split(/[,，、]/).map(item => item.trim()).filter(item => item);
-            currentRecipe.ingredients = ingredientList;
-            currentRecipe.missingIngredients = ingredientList.filter(ing => !userIngredients.includes(ing));
-          }
-        } else if (text.includes('难度：')) {
-          if (currentRecipe) {
-            currentRecipe.difficulty = text.replace('难度：', '').trim();
-          }
-        } else if (text.includes('烹饪时间：') || text.includes('时间：')) {
-          if (currentRecipe) {
-            currentRecipe.cookTime = text.replace('烹饪时间：', '').replace('时间：', '').trim();
-          }
-        } else if (text.includes('卡路里：') || text.includes('热量：')) {
-          if (currentRecipe) {
-            currentRecipe.calories = text.replace('卡路里：', '').replace('热量：', '').trim();
-          }
-        } else if (text.includes('步骤：')) {
-          if (currentRecipe) {
-            const stepsText = text.replace('步骤：', '').trim();
-            const stepList = stepsText.split(/[,，]/).map(step => step.trim()).filter(step => step);
-            currentRecipe.steps = stepList;
-          }
-        } else if (currentRecipe && text.match(/^\d+\./)) {
-          // 步骤格式：1. xxx
-          currentRecipe.steps.push(text.trim());
-        }
-      });
-
-      if (currentRecipe) {
-        recipes.push(currentRecipe);
-      }
-
-      // 如果解析失败，返回默认菜谱
-      if (recipes.length === 0) {
-        console.log('文本解析失败，返回默认菜谱');
-        return [
-          {
-            name: '番茄炒鸡蛋',
-            ingredients: [...userIngredients, '葱', '姜', '蒜', '盐', '糖'],
-            missingIngredients: ['葱', '姜', '蒜', '盐', '糖'],
-            difficulty: '简单',
-            cookTime: '15分钟',
-            calories: '约250',
-            steps: [
-              '1. 西红柿洗净切块，鸡蛋打散加少许盐',
-              '2. 锅中放油，油热后倒入蛋液，炒熟盛出',
-              '3. 锅中再加少许油，放入西红柿翻炒',
-              '4. 加入适量糖和盐调味',
-              '5. 倒入炒好的鸡蛋翻炒均匀',
-              '6. 撒上葱花即可出锅'
-            ]
-          },
-          {
-            name: '清炒时蔬',
-            ingredients: [...userIngredients, '蒜', '盐', '油'],
-            missingIngredients: ['蒜', '盐', '油'],
-            difficulty: '简单',
-            cookTime: '10分钟',
-            calories: '约150',
-            steps: [
-              '1. 蔬菜洗净切好',
-              '2. 锅中放油，爆香蒜末',
-              '3. 放入蔬菜翻炒',
-              '4. 加入盐调味',
-              '5. 翻炒均匀后出锅'
-            ]
-          },
-          {
-            name: '食材汤',
-            ingredients: [...userIngredients, '盐', '香油'],
-            missingIngredients: ['盐', '香油'],
-            difficulty: '简单',
-            cookTime: '20分钟',
-            calories: '约200',
-            steps: [
-              '1. 食材洗净切好',
-              '2. 锅中加水烧开',
-              '3. 放入食材煮10分钟',
-              '4. 加入盐调味',
-              '5. 出锅前淋上香油'
-            ]
-          }
-        ];
-      }
-
-      console.log('文本解析成功，菜谱:', recipes);
-      return recipes;
-    }
-  } catch (error) {
-    console.error('解析菜谱失败:', error);
-    // 返回默认菜谱
-    return [
-      {
-        name: '简易炒菜',
-        ingredients: [...userIngredients, '盐', '油'],
-        missingIngredients: ['盐', '油'],
-        difficulty: '简单',
-        cookTime: '15分钟',
-        calories: '约200',
-        steps: [
-          '1. 食材洗净切好',
-          '2. 锅中放油加热',
-          '3. 放入食材翻炒',
-          '4. 加入盐调味',
-          '5. 炒熟后出锅'
-        ]
-      }
-    ];
+  // 3. 提取第一个 [ ... ] 或 { ... } JSON结构
+  const arrMatch = text.match(/\[[\s\S]*\]/);
+  if (arrMatch) {
+    try { JSON.parse(arrMatch[0]); return arrMatch[0]; } catch(e) {}
   }
+  const objMatch = text.match(/\{[\s\S]*\}/);
+  if (objMatch) {
+    try { JSON.parse(objMatch[0]); return objMatch[0]; } catch(e) {}
+  }
+
+  // 4. 逐步截断尾部垃圾字符重试
+  for (let len = text.length; len > 10; len -= 10) {
+    const sub = text.substring(0, len);
+    try { JSON.parse(sub); return sub; } catch(e) {}
+  }
+
+  return null;
 };
 
-// 获取默认菜谱
-const getDefaultRecipes = (ingredients) => {
-  return [
-    {
-      name: '番茄炒鸡蛋',
-      ingredients: [...ingredients, '葱', '姜', '蒜', '盐', '糖'],
-      missingIngredients: ['葱', '姜', '蒜', '盐', '糖'],
-      difficulty: '简单',
-      cookTime: '15分钟',
-      calories: '约250',
-      steps: [
-        '1. 西红柿洗净切块，鸡蛋打散加少许盐',
-        '2. 锅中放油，油热后倒入蛋液，炒熟盛出',
-        '3. 锅中再加少许油，放入西红柿翻炒',
-        '4. 加入适量糖和盐调味',
-        '5. 倒入炒好的鸡蛋翻炒均匀',
-        '6. 撒上葱花即可出锅'
-      ]
-    },
-    {
-      name: '清炒时蔬',
-      ingredients: [...ingredients, '蒜', '盐', '油'],
-      missingIngredients: ['蒜', '盐', '油'],
-      difficulty: '简单',
-      cookTime: '10分钟',
-      calories: '约150',
-      steps: [
-        '1. 蔬菜洗净切好',
-        '2. 锅中放油，爆香蒜末',
-        '3. 放入蔬菜翻炒',
-        '4. 加入盐调味',
-        '5. 翻炒均匀后出锅'
-      ]
-    },
-    {
-      name: '食材汤',
-      ingredients: [...ingredients, '盐', '香油'],
-      missingIngredients: ['盐', '香油'],
-      difficulty: '简单',
-      cookTime: '20分钟',
-      calories: '约200',
-      steps: [
-        '1. 食材洗净切好',
-        '2. 锅中加水烧开',
-        '3. 放入食材煮10分钟',
-        '4. 加入盐调味',
-        '5. 出锅前淋上香油'
-      ]
-    }
-  ];
+// 解析AI生成的菜谱
+const parseRecipes = (content, userIngredients) => {
+  console.log('开始解析菜谱，原始内容长度:', content.length);
+
+  const jsonStr = extractJSON(content);
+  if (!jsonStr) {
+    console.error('无法从AI返回内容中提取有效JSON');
+    throw new Error('解析失败');
+  }
+
+  const parsedContent = JSON.parse(jsonStr);
+  const recipesArray = Array.isArray(parsedContent) ? parsedContent : [parsedContent];
+
+  const processedRecipes = recipesArray.map(recipe => ({
+    name: recipe.name || '未知菜谱',
+    ingredients: recipe.ingredients || [],
+    missingIngredients: (recipe.ingredients || []).filter(ing => !userIngredients.includes(ing)),
+    difficulty: recipe.difficulty || '简单',
+    cookTime: recipe.cookTime || '',
+    calories: recipe.calories || '约300',
+    steps: recipe.steps || []
+  }));
+
+  console.log('菜谱解析成功，共', processedRecipes.length, '道:', processedRecipes.map(r => r.name).join('、'));
+  return processedRecipes;
 };
 
 // 使用阿里云多模态API进行卡路里识别

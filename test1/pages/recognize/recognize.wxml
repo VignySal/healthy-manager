@@ -51,6 +51,29 @@
     </view>
   </view>
 
+  <view class="time-section">
+    <view class="time-title">⏱️ 你有多少时间做饭（可选）</view>
+    <view class="time-list">
+      <view class="time-item {{cookingTime === '10' ? 'active' : ''}}" bindtap="selectTime" data-time="10">
+        <text class="time-value">10</text>
+        <text class="time-unit">分钟</text>
+      </view>
+      <view class="time-item {{cookingTime === '20' ? 'active' : ''}}" bindtap="selectTime" data-time="20">
+        <text class="time-value">20</text>
+        <text class="time-unit">分钟</text>
+      </view>
+      <view class="time-item {{cookingTime === '30' ? 'active' : ''}}" bindtap="selectTime" data-time="30">
+        <text class="time-value">30</text>
+        <text class="time-unit">分钟</text>
+      </view>
+      <view class="time-item {{cookingTime === 'custom' ? 'active' : ''}}" bindtap="selectTime" data-time="custom">
+        <text class="time-value" wx:if="{{cookingTime !== 'custom'}}">自定义</text>
+        <text class="time-value" wx:else>{{customTime}}分钟</text>
+        <input class="time-custom-input" wx:if="{{cookingTime === 'custom'}}" type="number" placeholder="分钟" value="{{customTime}}" bindinput="onCustomTimeInput" catchtap="noop" />
+      </view>
+    </view>
+  </view>
+
   <view class="style-section">
     <view class="style-title">🍽️ 选择做饭风格</view>
     <view class="style-list">
