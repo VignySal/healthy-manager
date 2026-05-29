@@ -1,0 +1,74 @@
+<view class="container">
+  <!-- 未登录状态 -->
+  <view class="login-section" wx:if="{{!isLoggedIn}}">
+    <view class="login-card">
+      <view class="avatar-placeholder">
+        <text class="avatar-icon">👤</text>
+      </view>
+      <text class="login-title">欢迎使用冰箱清空大师</text>
+      <text class="login-desc">登录后可同步您的饮食数据</text>
+      <button class="btn-login" bindtap="handleLogin">
+        <text class="btn-login-icon">💚</text>
+        <text>微信一键登录</text>
+      </button>
+    </view>
+  </view>
+
+  <!-- 已登录状态 -->
+  <view class="profile-section" wx:else>
+    <view class="profile-card">
+      <view class="profile-header">
+        <image
+          wx:if="{{userInfo && userInfo.avatarUrl}}"
+          class="avatar-img"
+          src="{{userInfo.avatarUrl}}"
+          mode="aspectFill"
+        ></image>
+        <view wx:else class="avatar-placeholder avatar-large">
+          <text class="avatar-icon">👤</text>
+        </view>
+        <text class="profile-nickname">{{userInfo ? userInfo.nickName : '微信用户'}}</text>
+        <text class="profile-status">已登录</text>
+      </view>
+
+      <view class="profile-detail">
+        <view class="detail-item">
+          <text class="detail-label">性别</text>
+          <text class="detail-value">{{userInfo && userInfo.gender === 1 ? '男' : userInfo && userInfo.gender === 2 ? '女' : '未设置'}}</text>
+        </view>
+        <view class="detail-item">
+          <text class="detail-label">国家/地区</text>
+          <text class="detail-value">{{userInfo ? userInfo.country || '未知' : '未知'}}</text>
+        </view>
+        <view class="detail-item" wx:if="{{loginCode}}">
+          <text class="detail-label">登录凭证</text>
+          <text class="detail-value code-text">{{loginCode}}</text>
+        </view>
+      </view>
+
+      <button class="btn-logout" bindtap="handleLogout">退出登录</button>
+    </view>
+  </view>
+
+  <!-- 功能列表 -->
+  <view class="menu-section">
+    <view class="menu-card">
+      <view class="menu-item" bindtap="goToMyRecipes">
+        <text class="menu-icon">📋</text>
+        <text class="menu-text">我的菜谱</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      <view class="menu-item" bindtap="goToDietaryPreferences">
+        <text class="menu-icon">🍽️</text>
+        <text class="menu-text">饮食偏好设置</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      <view class="menu-item">
+        <text class="menu-icon">ℹ️</text>
+        <text class="menu-text">关于</text>
+        <text class="menu-arrow">›</text>
+      </view>
+    </view>
+  </view>
+
+</view>

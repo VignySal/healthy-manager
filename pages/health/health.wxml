@@ -1,0 +1,87 @@
+<view class="container">
+  <!-- 健康分析中心 -->
+  <view class="health-header">
+    <text class="health-icon">🏥</text>
+    <text class="health-title">健康分析中心</text>
+    <text class="health-subtitle">您的健康助手</text>
+  </view>
+
+  <!-- 三个功能按钮横排 -->
+  <view class="feature-row">
+    <view class="feature-btn" bindtap="goToFridgeScan">
+      <view class="feature-btn-icon">🧊</view>
+      <text class="feature-btn-text">冰箱识别</text>
+    </view>
+    <view class="feature-btn" bindtap="goToManualSelect">
+      <view class="feature-btn-icon">✏️</view>
+      <text class="feature-btn-text">食材自选</text>
+    </view>
+    <view class="feature-btn" bindtap="goToCalorieScanner">
+      <view class="feature-btn-icon">🔥</view>
+      <text class="feature-btn-text">卡路里识别</text>
+    </view>
+  </view>
+
+  <!-- 日历组件 -->
+  <view class="calendar-card">
+    <!-- 月份切换 -->
+    <view class="calendar-header">
+      <view class="month-arrow" bindtap="prevMonth">◀</view>
+      <text class="month-title">{{currentYear}}年 {{currentMonth}}月</text>
+      <view class="month-arrow" bindtap="nextMonth">▶</view>
+    </view>
+
+    <!-- 星期标题 -->
+    <view class="weekday-row">
+      <text class="weekday-item">日</text>
+      <text class="weekday-item">一</text>
+      <text class="weekday-item">二</text>
+      <text class="weekday-item">三</text>
+      <text class="weekday-item">四</text>
+      <text class="weekday-item">五</text>
+      <text class="weekday-item">六</text>
+    </view>
+
+    <!-- 日历网格 -->
+    <view class="calendar-grid">
+      <view class="calendar-week" wx:for="{{calendarData}}" wx:key="index">
+        <view
+          class="calendar-day {{cell.day === null ? 'day-empty' : ''}} {{cell.date === todayStr ? 'day-today' : ''}}"
+          wx:for="{{item}}"
+          wx:key="cellKey"
+          wx:for-item="cell"
+          bindtap="onDayTap"
+          data-date="{{cell.date}}"
+          data-hasdata="{{cell.hasData}}"
+        >
+          <text class="day-number" wx:if="{{cell.day !== null}}">{{cell.day}}</text>
+          <view class="day-indicator" wx:if="{{cell.hasData}}">
+            <view class="indicator-dot {{cell.calories <= halfGoal ? 'dot-low' : ''}} {{cell.calories > halfGoal && cell.calories <= dailyGoal ? 'dot-mid' : ''}} {{cell.calories > dailyGoal ? 'dot-high' : ''}}"></view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 图例 -->
+    <view class="calendar-legend">
+      <view class="legend-item">
+        <view class="legend-dot dot-low"></view>
+        <text class="legend-text">低摄入(&lt;{{halfGoal}})</text>
+      </view>
+      <view class="legend-item">
+        <view class="legend-dot dot-mid"></view>
+        <text class="legend-text">适中</text>
+      </view>
+      <view class="legend-item">
+        <view class="legend-dot dot-high"></view>
+        <text class="legend-text">超目标(&gt;{{dailyGoal}})</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="tips-section">
+    <view class="tips-card">
+      <text class="tips-text">💡 提示：点击日历日期可查看当天饮食详情</text>
+    </view>
+  </view>
+</view>

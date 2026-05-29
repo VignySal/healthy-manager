@@ -1,0 +1,47 @@
+{
+  "pages": [
+    "pages/health/health",
+    "pages/index/index",
+    "pages/recognize/recognize",
+    "pages/recipes/recipes",
+    "pages/calorie/calorie",
+    "pages/diet-overview/diet-overview",
+    "pages/calorie-trend/calorie-trend",
+    "pages/my-recipes/my-recipes",
+    "pages/profile/profile",
+    "pages/dietary-preferences/dietary-preferences"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#4CAF50",
+    "navigationBarTitleText": "健康分析",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f5f5f5"
+  },
+  "tabBar": {
+    "custom": true,
+    "color": "#999999",
+    "selectedColor": "#4CAF50",
+    "list": [
+      {
+        "pagePath": "pages/health/health",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/diet-overview/diet-overview",
+        "text": "饮食概览"
+      },
+      {
+        "pagePath": "pages/calorie-trend/calorie-trend",
+        "text": "摄入趋势"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "个人中心"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

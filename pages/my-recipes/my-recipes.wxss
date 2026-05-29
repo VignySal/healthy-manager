@@ -1,0 +1,453 @@
+.container {
+  padding: 24rpx;
+  padding-bottom: 40rpx;
+  min-height: 100vh;
+  background: #f5f5f5;
+}
+
+/* 顶部操作栏 */
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  gap: 16rpx;
+  margin-bottom: 20rpx;
+}
+
+.bar-btn {
+  background: #fff;
+  border: 1rpx solid #e0e0e0;
+  border-radius: 12rpx;
+  padding: 14rpx 24rpx;
+  font-size: 26rpx;
+  color: #333;
+}
+
+/* 卡片标签行 */
+.card-tags {
+  display: flex;
+  gap: 8rpx;
+}
+
+/* 排序选项 */
+.sort-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24rpx 20rpx;
+  border-radius: 12rpx;
+  margin-bottom: 8rpx;
+  font-size: 28rpx;
+  color: #333;
+  background: #f9f9f9;
+}
+
+.sort-option.sort-active {
+  background: #E8F5E9;
+  color: #2E7D32;
+  font-weight: 600;
+}
+
+.sort-check {
+  color: #4CAF50;
+  font-size: 32rpx;
+}
+
+/* 保存排序按钮 */
+.bar-btn-save {
+  background: #4CAF50;
+  color: #fff;
+  border-color: #4CAF50;
+  font-weight: 600;
+}
+
+/* 手动排序模式 */
+.recipe-card.sorting {
+  border: 2rpx solid #4CAF50;
+  position: relative;
+}
+
+.sort-handle {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  margin-right: 16rpx;
+}
+
+.sort-arrows {
+  display: flex;
+  flex-direction: column;
+  gap: 2rpx;
+}
+
+.sort-arrow {
+  width: 36rpx;
+  height: 30rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18rpx;
+  color: #4CAF50;
+  background: #E8F5E9;
+  border-radius: 4rpx;
+}
+
+.sort-arrow.arrow-disabled {
+  color: #ccc;
+  background: #f5f5f5;
+}
+
+.sort-icon {
+  font-size: 36rpx;
+  color: #bbb;
+}
+
+.sort-handle.dragging .sort-icon {
+  color: #4CAF50;
+  font-size: 40rpx;
+}
+
+/* 小弹窗 */
+.dialog-small {
+  width: 520rpx;
+}
+
+/* 空状态 */
+.empty-state {
+  text-align: center;
+  padding: 160rpx 40rpx;
+}
+
+.empty-icon {
+  font-size: 100rpx;
+  display: block;
+  margin-bottom: 24rpx;
+}
+
+.empty-text {
+  font-size: 32rpx;
+  color: #666;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 16rpx;
+}
+
+.empty-hint {
+  font-size: 26rpx;
+  color: #999;
+  display: block;
+  line-height: 1.5;
+}
+
+/* 列表 */
+.recipes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+/* 卡片 */
+.recipe-card {
+  background: #fff;
+  border-radius: 16rpx;
+  overflow: hidden;
+  box-shadow: 0 2rpx 16rpx rgba(0, 0, 0, 0.06);
+}
+
+/* 一行：名称 + 照片 + 箭头 */
+.card-row {
+  display: flex;
+  align-items: center;
+  padding: 24rpx 28rpx;
+}
+
+.card-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+  overflow: hidden;
+}
+
+.card-name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card-type {
+  font-size: 22rpx;
+  color: #4CAF50;
+  background: #e8f5e9;
+  padding: 2rpx 14rpx;
+  border-radius: 8rpx;
+  align-self: flex-start;
+}
+
+.card-photo {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 12rpx;
+  overflow: hidden;
+  flex-shrink: 0;
+  margin: 0 20rpx;
+  background: #f5f5f5;
+}
+
+.photo-img {
+  width: 100%;
+  height: 100%;
+}
+
+.photo-empty {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+}
+
+.photo-placeholder {
+  font-size: 40rpx;
+}
+
+.card-arrow {
+  font-size: 24rpx;
+  color: #bbb;
+  flex-shrink: 0;
+}
+
+/* 展开详情 */
+.card-detail {
+  padding: 0 28rpx 28rpx;
+  border-top: 1rpx solid #f0f0f0;
+  margin: 0 28rpx;
+  padding-top: 20rpx;
+}
+
+.detail-row {
+  display: flex;
+  align-items: center;
+  padding: 8rpx 0;
+}
+
+.detail-label {
+  font-size: 24rpx;
+  color: #999;
+  width: 140rpx;
+  flex-shrink: 0;
+}
+
+.detail-value {
+  font-size: 24rpx;
+  color: #555;
+  flex: 1;
+}
+
+.detail-section {
+  margin-top: 14rpx;
+  padding-top: 14rpx;
+  border-top: 1rpx solid #f5f5f5;
+}
+
+.section-label {
+  font-size: 24rpx;
+  color: #999;
+  display: block;
+  margin-bottom: 6rpx;
+}
+
+.section-text {
+  font-size: 24rpx;
+  color: #555;
+  line-height: 1.5;
+}
+
+.step-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 6rpx;
+  padding: 3rpx 0;
+}
+
+.step-num {
+  font-size: 24rpx;
+  color: #4CAF50;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.step-text {
+  font-size: 24rpx;
+  color: #555;
+  line-height: 1.5;
+}
+
+.detail-actions {
+  margin-top: 18rpx;
+  display: flex;
+  justify-content: flex-end;
+  gap: 16rpx;
+}
+
+.btn-edit {
+  background: #4CAF50;
+  color: #fff;
+  border: none;
+  border-radius: 8rpx;
+  padding: 8rpx 26rpx;
+  font-size: 24rpx;
+}
+
+.btn-delete {
+  background: #fff;
+  color: #e74c3c;
+  border: 1rpx solid #e74c3c;
+  border-radius: 8rpx;
+  padding: 8rpx 26rpx;
+  font-size: 24rpx;
+}
+
+/* 编辑弹窗 */
+.edit-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dialog-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.dialog-content {
+  position: relative;
+  background: #fff;
+  border-radius: 20rpx;
+  width: 600rpx;
+  max-height: 80vh;
+  overflow: hidden;
+}
+
+.dialog-header {
+  background: #4CAF50;
+  padding: 28rpx 36rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dialog-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #fff;
+}
+
+.dialog-close {
+  font-size: 40rpx;
+  color: #fff;
+  font-weight: 300;
+  line-height: 1;
+}
+
+.dialog-body {
+  padding: 32rpx 36rpx;
+  max-height: 55vh;
+  overflow-y: auto;
+}
+
+.edit-field {
+  margin-bottom: 24rpx;
+}
+
+.edit-field:last-child {
+  margin-bottom: 0;
+}
+
+.edit-label {
+  font-size: 26rpx;
+  color: #666;
+  display: block;
+  margin-bottom: 10rpx;
+}
+
+.edit-input {
+  font-size: 28rpx;
+  color: #333;
+  padding: 14rpx 18rpx;
+  background: #f5f5f5;
+  border-radius: 10rpx;
+  border: 2rpx solid transparent;
+}
+
+.edit-input:focus {
+  border-color: #4CAF50;
+  background: #fff;
+}
+
+.edit-photo {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 12rpx;
+  overflow: hidden;
+  background: #f5f5f5;
+}
+
+.edit-photo-img {
+  width: 100%;
+  height: 100%;
+}
+
+.edit-photo-empty {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  color: #999;
+  border: 2rpx dashed #ccc;
+  border-radius: 12rpx;
+  box-sizing: border-box;
+}
+
+.dialog-footer {
+  display: flex;
+  border-top: 1rpx solid #f0f0f0;
+}
+
+.dialog-btn {
+  flex: 1;
+  padding: 26rpx;
+  font-size: 28rpx;
+  border-radius: 0;
+  border: none;
+  background: transparent;
+}
+
+.dialog-btn::after {
+  border: none;
+}
+
+.dialog-btn-cancel {
+  color: #999;
+  border-right: 1rpx solid #f0f0f0;
+}
+
+.dialog-btn-save {
+  color: #4CAF50;
+  font-weight: bold;
+}

@@ -1,0 +1,366 @@
+.container {
+  padding: 40rpx;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 60rpx;
+  padding: 40rpx 0;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 24rpx;
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.1);
+}
+
+.header-icon {
+  font-size: 80rpx;
+  display: block;
+  margin-bottom: 20rpx;
+}
+
+.header-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: var(--text-primary);
+  display: block;
+  margin-bottom: 12rpx;
+}
+
+.header-subtitle {
+  font-size: 24rpx;
+  color: var(--text-secondary);
+  display: block;
+}
+
+.upload-section {
+  margin-bottom: 60rpx;
+}
+
+.upload-card {
+  background: var(--bg-white);
+  border-radius: var(--radius-lg);
+  padding: 32rpx;
+  box-shadow: var(--shadow-md);
+  position: relative;
+}
+
+.preview-area {
+  position: relative;
+  border-radius: 16rpx;
+  overflow: hidden;
+  background: #f5f5f5;
+  min-height: 300rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.preview-image {
+  width: 100%;
+  height: 300rpx;
+  object-fit: cover;
+}
+
+.remove-btn {
+  position: absolute;
+  top: 16rpx;
+  right: 16rpx;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  font-weight: bold;
+}
+
+.upload-area {
+  text-align: center;
+  padding: 100rpx 0;
+  border: 2rpx dashed #ccc;
+  border-radius: 16rpx;
+  background: #f9f9f9;
+  transition: all 0.3s ease;
+  min-height: 300rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.upload-area:hover {
+  border-color: #4CAF50;
+  background: #f0f9f0;
+}
+
+.upload-icon {
+  font-size: 120rpx;
+  display: block;
+  margin-bottom: 32rpx;
+}
+
+.upload-text {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  display: block;
+  margin-bottom: 16rpx;
+}
+
+.upload-hint {
+  font-size: 24rpx;
+  color: #999;
+  display: block;
+}
+
+.action-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+  margin-bottom: 60rpx;
+}
+
+.result-section {
+  margin-bottom: 60rpx;
+}
+
+.result-card {
+  background: var(--bg-white);
+  border-radius: var(--radius-lg);
+  padding: 32rpx;
+  box-shadow: var(--shadow-md);
+}
+
+.result-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: var(--text-primary);
+  margin-bottom: 24rpx;
+  display: block;
+}
+
+.result-item {
+  margin-bottom: 16rpx;
+  display: flex;
+  align-items: flex-start;
+}
+
+.result-label {
+  font-size: 26rpx;
+  color: var(--text-secondary);
+  width: 160rpx;
+  flex-shrink: 0;
+}
+
+.result-value {
+  font-size: 26rpx;
+  color: var(--text-primary);
+  flex: 1;
+  line-height: 1.4;
+}
+
+.tips-section {
+  margin-top: 40rpx;
+}
+
+.tips-card {
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 16rpx;
+  padding: 24rpx;
+  text-align: center;
+}
+
+.tips-text {
+  font-size: 26rpx;
+  color: #1565c0;
+}
+
+/* 餐次选择 */
+.meal-selection {
+  margin-top: 40rpx;
+  margin-bottom: 40rpx;
+}
+
+.selection-title {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: var(--text-primary);
+  margin-bottom: 24rpx;
+  display: block;
+}
+
+.meal-options {
+  display: flex;
+  gap: 20rpx;
+  margin-bottom: 40rpx;
+}
+
+.meal-option {
+  flex: 1;
+  background: var(--bg-page);
+  border: 2rpx solid #e0e0e0;
+  border-radius: 16rpx;
+  padding: 20rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 24rpx;
+  color: var(--text-secondary);
+  transition: all 0.3s ease;
+}
+
+.meal-option.active {
+  background: #FFF0EA;
+  border-color: #FF6B35;
+  color: #FF6B35;
+}
+
+.meal-option-icon {
+  font-size: 36rpx;
+  margin-bottom: 8rpx;
+}
+
+/* 操作按钮 */
+.action-buttons {
+  display: flex;
+  gap: 16rpx;
+}
+
+.btn-save-to-diary {
+  flex: 1;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 12rpx;
+  padding: 20rpx 12rpx;
+  font-size: 24rpx;
+  font-weight: bold;
+}
+
+.btn-save-to-diary.btn-disabled {
+  background: #ccc;
+  color: #999;
+}
+
+.btn-save-recipe {
+  flex: 1;
+  background: linear-gradient(135deg, #FF6B35 0%, #f57c00 100%);
+  color: white;
+  border: none;
+  border-radius: 12rpx;
+  padding: 20rpx 12rpx;
+  font-size: 24rpx;
+  font-weight: bold;
+  box-shadow: 0 4rpx 16rpx rgba(255, 107, 53, 0.3);
+}
+
+.btn-save-recipe::after {
+  border: none;
+}
+
+.btn-view-diary {
+  flex: 1;
+  background: #f0f0f0;
+  color: #333;
+  border: 1rpx solid #ccc;
+  border-radius: 12rpx;
+  padding: 20rpx 12rpx;
+  font-size: 24rpx;
+}
+
+/* 日期选择器 */
+.date-picker-row {
+  display: flex;
+  align-items: center;
+  margin-top: 24rpx;
+  padding: 16rpx 20rpx;
+  background: #fff;
+  border-radius: 12rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
+}
+
+.date-picker-label {
+  font-size: 26rpx;
+  color: #666;
+  flex-shrink: 0;
+}
+
+.date-picker-value {
+  font-size: 26rpx;
+  color: #FF6B35;
+  font-weight: 600;
+  padding: 8rpx 16rpx;
+  background: #FFF0EA;
+  border-radius: 8rpx;
+  margin-left: 12rpx;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 24rpx;
+  font-size: 28rpx;
+  font-weight: bold;
+}
+
+.btn-secondary {
+  background: #f0f0f0;
+  color: #333;
+  border: 1rpx solid #ccc;
+  border-radius: 12rpx;
+  padding: 24rpx;
+  font-size: 28rpx;
+}
+
+.btn-full {
+  width: 100%;
+}
+
+/* 骨架屏 */
+.skeleton-card {
+  background: var(--bg-white);
+  border-radius: var(--radius-lg);
+  padding: 32rpx;
+  box-shadow: var(--shadow-md);
+}
+
+.skeleton-block,
+.skeleton-line {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-sm);
+}
+
+.skeleton-image {
+  width: 100%;
+  height: 300rpx;
+  border-radius: 16rpx;
+  margin-bottom: 32rpx;
+}
+
+.skeleton-line {
+  height: 32rpx;
+  margin-bottom: 20rpx;
+  width: 60%;
+}
+
+.skeleton-line-long {
+  width: 85%;
+}
+
+.skeleton-line-short {
+  width: 40%;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}

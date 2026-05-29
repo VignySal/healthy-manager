@@ -1,0 +1,186 @@
+<view class="container">
+  <!-- 忌口食物 -->
+  <view class="section">
+    <view class="section-header">
+      <text class="section-icon">🚫</text>
+      <text class="section-title">忌口食物</text>
+      <text class="section-hint">可多选</text>
+      <text class="edit-toggle" bindtap="toggleEditRestrictions">{{editingRestrictions ? '完成' : '编辑'}}</text>
+    </view>
+    <view class="tag-grid">
+      <view
+        class="tag {{item.selected ? 'tag-active' : ''}} {{editingRestrictions ? 'tag-editing' : ''}}"
+        wx:for="{{restrictions}}"
+        wx:key="name"
+        data-index="{{index}}"
+        bindtap="toggleRestriction"
+      >
+        <text>{{item.name}}</text>
+        <text wx:if="{{editingRestrictions || item.custom}}" class="tag-remove" data-index="{{index}}" catchtap="removeRestriction">×</text>
+      </view>
+    </view>
+    <view class="add-row">
+      <input class="add-input" placeholder="{{editingRestrictionIndex >= 0 ? '修改忌口食物名称' : '添加忌口食物'}}" value="{{newRestriction}}" bindinput="onRestrictionInput" bindconfirm="addRestriction" />
+      <view wx:if="{{editingRestrictionIndex >= 0}}" class="add-btn add-btn-cancel" bindtap="cancelEditRestriction">取消</view>
+      <view class="add-btn" bindtap="addRestriction">{{editingRestrictionIndex >= 0 ? '保存' : '添加'}}</view>
+    </view>
+  </view>
+
+  <!-- 辣度偏好 -->
+  <view class="section">
+    <view class="section-header">
+      <text class="section-icon">🌶️</text>
+      <text class="section-title">默认辣度偏好</text>
+    </view>
+    <view class="option-row">
+      <view
+        class="option-chip {{spicyIndex === index ? 'option-active' : ''}}"
+        wx:for="{{spicyLevels}}"
+        wx:key="*this"
+        data-index="{{index}}"
+        bindtap="selectSpicy"
+      >
+        <text>{{item}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 口味偏好 -->
+  <view class="section">
+    <view class="section-header">
+      <text class="section-icon">😋</text>
+      <text class="section-title">口味偏好</text>
+      <text class="section-hint">可多选</text>
+    </view>
+    <view class="tag-grid">
+      <view
+        class="tag {{item.selected ? 'tag-active' : ''}}"
+        wx:for="{{tastePreferences}}"
+        wx:key="name"
+        data-index="{{index}}"
+        bindtap="toggleTaste"
+      >
+        <text>{{item.name}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 基础调料 -->
+  <view class="section">
+    <view class="section-header">
+      <text class="section-icon">🧂</text>
+      <text class="section-title">基础调料</text>
+      <text class="section-hint">可多选</text>
+      <text class="edit-toggle" bindtap="toggleEditSeasonings">{{editingSeasonings ? '完成' : '编辑'}}</text>
+    </view>
+    <view class="tag-grid">
+      <view
+        class="tag {{item.selected ? 'tag-active' : ''}} {{editingSeasonings ? 'tag-editing' : ''}}"
+        wx:for="{{seasonings}}"
+        wx:key="name"
+        data-index="{{index}}"
+        bindtap="toggleSeasoning"
+      >
+        <text>{{item.name}}</text>
+        <text wx:if="{{editingSeasonings || item.custom}}" class="tag-remove" data-index="{{index}}" catchtap="removeSeasoning">×</text>
+      </view>
+    </view>
+    <view class="add-row">
+      <input class="add-input" placeholder="{{editingSeasoningIndex >= 0 ? '修改调料名称' : '添加自定义调料'}}" value="{{newSeasoning}}" bindinput="onSeasoningInput" bindconfirm="addSeasoning" />
+      <view wx:if="{{editingSeasoningIndex >= 0}}" class="add-btn add-btn-cancel" bindtap="cancelEditSeasoning">取消</view>
+      <view class="add-btn" bindtap="addSeasoning">{{editingSeasoningIndex >= 0 ? '保存' : '添加'}}</view>
+    </view>
+  </view>
+
+  <!-- 厨具白名单 -->
+  <view class="section">
+    <view class="section-header">
+      <text class="section-icon">🍳</text>
+      <text class="section-title">厨具白名单</text>
+      <text class="section-hint">可多选</text>
+      <text class="edit-toggle" bindtap="toggleEditKitchenware">{{editingKitchenware ? '完成' : '编辑'}}</text>
+    </view>
+    <view class="section-desc">勾选你拥有的厨具，菜谱推荐将只包含你能做的菜</view>
+    <view class="tag-grid">
+      <view
+        class="tag {{item.selected ? 'tag-active' : ''}} {{editingKitchenware ? 'tag-editing' : ''}}"
+        wx:for="{{kitchenware}}"
+        wx:key="name"
+        data-index="{{index}}"
+        bindtap="toggleKitchenware"
+      >
+        <text>{{item.name}}</text>
+        <text wx:if="{{editingKitchenware || item.custom}}" class="tag-remove" data-index="{{index}}" catchtap="removeKitchenware">×</text>
+      </view>
+    </view>
+    <view class="add-row">
+      <input class="add-input" placeholder="{{editingKitchenwareIndex >= 0 ? '修改厨具名称' : '添加自定义厨具'}}" value="{{newKitchenware}}" bindinput="onKitchenwareInput" bindconfirm="addKitchenware" />
+      <view wx:if="{{editingKitchenwareIndex >= 0}}" class="add-btn add-btn-cancel" bindtap="cancelEditKitchenware">取消</view>
+      <view class="add-btn" bindtap="addKitchenware">{{editingKitchenwareIndex >= 0 ? '保存' : '添加'}}</view>
+    </view>
+  </view>
+
+  <!-- 常用食材 -->
+  <view class="section">
+    <view class="section-header">
+      <text class="section-icon">🥬</text>
+      <text class="section-title">常用食材</text>
+      <text class="section-hint">快捷添加</text>
+      <text class="edit-toggle" bindtap="toggleEditCommonIngredients">{{editingCommonIngredients ? '完成' : '编辑'}}</text>
+    </view>
+    <view class="section-desc">在识别结果页面可一键添加这些常用食材，方便快速补全</view>
+    <view class="tag-grid">
+      <view
+        class="tag {{editingCommonIngredients ? 'tag-editing' : ''}}"
+        wx:for="{{commonIngredients}}"
+        wx:key="name"
+        data-index="{{index}}"
+        bindtap="startEditCommonIngredient"
+      >
+        <text wx:if="{{!editingCommonIngredients}}">{{item.name}}</text>
+        <text wx:else>{{item.name}} ✎</text>
+        <text wx:if="{{editingCommonIngredients}}" class="tag-remove" data-index="{{index}}" catchtap="removeCommonIngredient">×</text>
+      </view>
+    </view>
+    <view class="add-row">
+      <input class="add-input" placeholder="{{editingCommonIngredientIndex >= 0 ? '修改食材名称' : '添加常用食材'}}" value="{{newCommonIngredient}}" bindinput="onCommonIngredientInput" bindconfirm="addCommonIngredient" />
+      <view wx:if="{{editingCommonIngredientIndex >= 0}}" class="add-btn add-btn-cancel" bindtap="cancelEditCommonIngredient">取消</view>
+      <view class="add-btn" bindtap="addCommonIngredient">{{editingCommonIngredientIndex >= 0 ? '保存' : '添加'}}</view>
+    </view>
+  </view>
+
+  <!-- 每日默认卡路里摄入 -->
+  <view class="section">
+    <view class="section-header">
+      <text class="section-icon">🔥</text>
+      <text class="section-title">每日默认卡路里摄入</text>
+    </view>
+    <view class="calorie-goal-row">
+      <input
+        class="calorie-goal-input"
+        type="number"
+        value="{{dailyCalorieGoal}}"
+        placeholder="请输入每日卡路里目标"
+        bindinput="onCalorieGoalInput"
+      />
+      <text class="calorie-goal-unit">千卡</text>
+    </view>
+  </view>
+
+  <!-- 其他备注 -->
+  <view class="section">
+    <view class="section-header">
+      <text class="section-icon">📝</text>
+      <text class="section-title">其他备注</text>
+    </view>
+    <textarea
+      class="notes-input"
+      value="{{notes}}"
+      placeholder="例如：少油少盐、不吃蒜、偏好蒸煮..."
+      bindinput="onNotesInput"
+      maxlength="200"
+      auto-height
+    />
+    <view class="notes-count">{{notes.length}}/200</view>
+  </view>
+</view>

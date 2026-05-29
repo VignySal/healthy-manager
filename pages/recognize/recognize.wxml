@@ -1,0 +1,198 @@
+<view class="container">
+  <view class="result-header">
+    <block wx:if="{{ingredients.length > 0}}">
+      <text class="result-title">识别成功！</text>
+    </block>
+    <block wx:else>
+      <text class="result-icon">📝</text>
+      <text class="result-title">手动添加食材</text>
+      <text class="result-subtitle">请添加您的食材后生成菜谱</text>
+    </block>
+  </view>
+
+  <view class="photo-section" wx:if="{{selectedImages.length > 0 || selectedImage}}">
+    <view class="photo-card">
+      <view class="preview-grid">
+        <block wx:if="{{selectedImages.length > 0}}">
+          <view class="preview-item" wx:for="{{selectedImages}}" wx:key="*this">
+            <image src="{{item}}" mode="aspectFill" class="preview-thumb"></image>
+          </view>
+        </block>
+        <view class="preview-item" wx:elif="{{selectedImage}}">
+          <image src="{{selectedImage}}" mode="aspectFill" class="preview-thumb"></image>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="ingredients-section">
+    <view class="section-title">🥗 {{ingredients.length > 0 ? '识别到的食材' : '已添加的食材'}}</view>
+    <view class="ingredients-tags" wx:if="{{ingredients.length > 0}}">
+      <view class="ingredient-tag" wx:for="{{ingredients}}" wx:key="index">
+        <text>{{item}}</text>
+        <view class="tag-remove" bindtap="removeIngredient" data-index="{{index}}">×</view>
+      </view>
+    </view>
+    <view class="empty-ingredients" wx:else>
+      <text class="empty-text">还没有添加食材，您可以：</text>
+      <text class="empty-hint">• 手动输入食材名称</text>
+      <text class="empty-hint">• 点击下方常用食材</text>
+    </view>
+  </view>
+
+  <view class="add-section">
+    <view class="add-card">
+      <view class="add-title">➕ 添加更多食材</view>
+      <view class="add-input-wrapper">
+        <input class="add-input" placeholder="输入食材名称，如：洋葱" value="{{newIngredient}}" bindinput="onInputChange" confirm-type="done" bindconfirm="addIngredient"></input>
+        <button class="add-btn" bindtap="addIngredient">添加</button>
+      </view>
+    </view>
+  </view>
+
+  <view class="common-ingredients">
+    <view class="common-title">🍳 常用食材（点击添加）</view>
+    <view class="common-list">
+      <view class="common-item" wx:for="{{commonIngredients}}" wx:key="*this" bindtap="addCommonIngredient" data-ingredient="{{item}}">
+        {{item}}
+      </view>
+    </view>
+  </view>
+
+  <view class="time-section">
+    <view class="time-title">⏱️ 你有多少时间做饭（可选）</view>
+    <view class="time-list">
+      <view class="time-item {{cookingTime === '10' ? 'active' : ''}}" bindtap="selectTime" data-time="10">
+        <text class="time-value">10</text>
+        <text class="time-unit">分钟</text>
+      </view>
+      <view class="time-item {{cookingTime === '20' ? 'active' : ''}}" bindtap="selectTime" data-time="20">
+        <text class="time-value">20</text>
+        <text class="time-unit">分钟</text>
+      </view>
+      <view class="time-item {{cookingTime === '30' ? 'active' : ''}}" bindtap="selectTime" data-time="30">
+        <text class="time-value">30</text>
+        <text class="time-unit">分钟</text>
+      </view>
+      <view class="time-item {{cookingTime === 'custom' ? 'active' : ''}}" bindtap="selectTime" data-time="custom">
+        <text class="time-value" wx:if="{{cookingTime !== 'custom'}}">自定义</text>
+        <text class="time-value" wx:else>{{customTime}}分钟</text>
+        <input class="time-custom-input" wx:if="{{cookingTime === 'custom'}}" type="number" placeholder="分钟" value="{{customTime}}" bindinput="onCustomTimeInput" catchtap="noop" />
+      </view>
+    </view>
+  </view>
+
+  <view class="style-section">
+    <view class="style-title">🍽️ 选择做饭风格</view>
+    <view class="style-list">
+      <view class="style-item {{cookingStyle === 'standard' ? 'active' : ''}}" bindtap="selectStyle" data-style="standard">
+        <text class="style-icon">🏠</text>
+        <text class="style-name">标准</text>
+        <text class="style-desc">家常菜谱</text>
+      </view>
+      <view class="style-item {{cookingStyle === 'diet' ? 'active' : ''}}" bindtap="selectStyle" data-style="diet">
+        <text class="style-icon">🥗</text>
+        <text class="style-name">减脂</text>
+        <text class="style-desc">低脂健康</text>
+      </view>
+      <view class="style-item {{cookingStyle === 'kids' ? 'active' : ''}}" bindtap="selectStyle" data-style="kids">
+        <text class="style-icon">👶</text>
+        <text class="style-name">儿童</text>
+        <text class="style-desc">营养美味</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="cooking-mode-section">
+    <view class="cooking-mode-title">🍽️ 做菜模式</view>
+    <view class="cooking-mode-list">
+      <view class="cooking-mode-item {{cookingMode === 'recommend' ? 'active' : ''}}" bindtap="selectCookingMode" data-mode="recommend">
+        <text class="mode-icon">📋</text>
+        <text class="mode-name">推荐模式</text>
+        <text class="mode-desc">生成几道菜供选择</text>
+      </view>
+      <view class="cooking-mode-item {{cookingMode === 'banquet' ? 'active' : ''}} {{cookingTime ? 'disabled' : ''}}" bindtap="selectCookingMode" data-mode="banquet">
+        <text class="mode-icon">🎉</text>
+        <text class="mode-name">聚餐模式</text>
+        <text class="mode-desc">一套完整菜单</text>
+        <view class="mode-badge" wx:if="{{cookingTime}}">需取消时间限制</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="recipe-count-section" wx:if="{{cookingMode === 'recommend'}}">
+    <view class="recipe-count-title">生成菜谱数量</view>
+    <view class="recipe-count-list">
+      <view class="recipe-count-item {{recipeCount === 3 ? 'active' : ''}}" bindtap="selectRecipeCount" data-count="3">
+        <text class="recipe-count-value">3</text>
+        <text class="recipe-count-unit">道菜</text>
+      </view>
+      <view class="recipe-count-item {{recipeCount === 4 ? 'active' : ''}}" bindtap="selectRecipeCount" data-count="4">
+        <text class="recipe-count-value">4</text>
+        <text class="recipe-count-unit">道菜</text>
+      </view>
+      <view class="recipe-count-item {{recipeCount === 5 ? 'active' : ''}}" bindtap="selectRecipeCount" data-count="5">
+        <text class="recipe-count-value">5</text>
+        <text class="recipe-count-unit">道菜</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="person-count-section" wx:if="{{cookingMode === 'banquet'}}">
+    <view class="person-count-title">👥 聚餐人数</view>
+    <view class="person-count-list">
+      <view class="person-count-item {{personCount === 3 ? 'active' : ''}}" bindtap="selectPersonCount" data-count="3">
+        <text class="person-count-value">3</text>
+        <text class="person-count-unit">人</text>
+      </view>
+      <view class="person-count-item {{personCount === 4 ? 'active' : ''}}" bindtap="selectPersonCount" data-count="4">
+        <text class="person-count-value">4</text>
+        <text class="person-count-unit">人</text>
+      </view>
+      <view class="person-count-item {{personCount === 5 ? 'active' : ''}}" bindtap="selectPersonCount" data-count="5">
+        <text class="person-count-value">5</text>
+        <text class="person-count-unit">人</text>
+      </view>
+      <view class="person-count-item {{personCount === 6 ? 'active' : ''}}" bindtap="selectPersonCount" data-count="6">
+        <text class="person-count-value">6</text>
+        <text class="person-count-unit">人</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="banquet-tip" wx:if="{{cookingMode === 'banquet'}}">
+    <view class="tips-card">
+      <text class="tips-text">🎉 聚餐模式：将根据{{personCount}}人的用餐需求，生成包含主菜、炒菜、凉菜、汤品等在内的一套完整菜单，共计{{personCount === 3 ? '3-4' : personCount === 4 ? '4-5' : personCount === 5 ? '5-6' : '6-8'}}道菜</text>
+    </view>
+  </view>
+
+  <view class="spicy-section">
+    <view class="spicy-title">🌶️ 辣度偏好</view>
+    <view class="option-row">
+      <view
+        class="option-chip {{spicyIndex === index ? 'option-active' : ''}} {{spicyLocked && index > 0 ? 'option-disabled' : ''}}"
+        wx:for="{{spicyLevels}}"
+        wx:key="*this"
+        data-index="{{index}}"
+        bindtap="selectSpicy"
+      >
+        <text>{{item}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="tips-section">
+    <view class="tips-card">
+      <text class="tips-text">💡 提示：确认食材后即可生成菜谱，也可以手动添加或删除食材</text>
+    </view>
+  </view>
+
+  <view class="action-section">
+    <button class="btn-primary btn-full" bindtap="generateRecipes">
+      生成菜谱 🎉
+    </button>
+    <button class="btn-secondary btn-full" bindtap="goBack">
+      重新拍照
+    </button>
+  </view>
+</view>

@@ -1,0 +1,112 @@
+<view class="container">
+  <view class="header">
+    <text class="header-icon">🔥</text>
+    <text class="header-title">卡路里识别</text>
+    <text class="header-subtitle">拍照识别食物卡路里含量</text>
+  </view>
+
+  <!-- 骨架屏：分析中 -->
+  <view class="upload-section" wx:if="{{isLoading}}">
+    <view class="skeleton-card">
+      <view class="skeleton-block skeleton-image"></view>
+      <view class="skeleton-line skeleton-line-long"></view>
+      <view class="skeleton-line"></view>
+      <view class="skeleton-line skeleton-line-short"></view>
+      <view class="skeleton-line skeleton-line-long"></view>
+    </view>
+  </view>
+
+  <view class="upload-section" wx:elif="{{!isLoading}}">
+    <view class="upload-card">
+      <view class="preview-area" wx:if="{{selectedImage}}">
+        <image src="{{selectedImage}}" mode="aspectFit" class="preview-image"></image>
+        <view class="remove-btn" bindtap="removeImage">
+          <text class="remove-icon">×</text>
+        </view>
+      </view>
+      <view class="upload-area" wx:else bindtap="chooseImage">
+        <view class="upload-icon">📷</view>
+        <text class="upload-text">点击拍照或上传食物照片</text>
+        <text class="upload-hint">请拍摄食物的正面照片</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="action-section" wx:if="{{!isLoading}}">
+    <button class="btn-primary btn-full" wx:if="{{selectedImage}}" bindtap="analyzeCalorie">
+      开始识别卡路里 🔥
+    </button>
+  </view>
+
+  <view class="result-section" wx:if="{{calorieResult}}">
+    <view class="result-card">
+      <text class="result-title">分析结果</text>
+      <view class="result-item">
+        <text class="result-label">食物名称：</text>
+        <text class="result-value">{{calorieResult.foodName}}</text>
+      </view>
+      <view class="result-item">
+        <text class="result-label">卡路里：</text>
+        <text class="result-value">{{calorieResult.calories}}</text>
+      </view>
+      <view class="result-item">
+        <text class="result-label">营养成分：</text>
+        <text class="result-value">{{calorieResult.nutrition}}</text>
+      </view>
+      <view class="result-item">
+        <text class="result-label">建议：</text>
+        <text class="result-value">{{calorieResult.suggestion}}</text>
+      </view>
+    </view>
+
+    <!-- 餐次选择和保存按钮 -->
+    <view class="meal-selection" wx:if="{{calorieResult}}">
+      <text class="selection-title">选择餐次：</text>
+      <view class="meal-options">
+        <button class="meal-option {{selectedMeal === 'breakfast' ? 'active' : ''}}"
+                data-meal="breakfast" bindtap="selectMeal">
+          <text class="meal-option-icon">🌅</text>
+          <text>早餐</text>
+        </button>
+        <button class="meal-option {{selectedMeal === 'lunch' ? 'active' : ''}}"
+                data-meal="lunch" bindtap="selectMeal">
+          <text class="meal-option-icon">☀️</text>
+          <text>午餐</text>
+        </button>
+        <button class="meal-option {{selectedMeal === 'dinner' ? 'active' : ''}}"
+                data-meal="dinner" bindtap="selectMeal">
+          <text class="meal-option-icon">🌙</text>
+          <text>晚餐</text>
+        </button>
+        <button class="meal-option {{selectedMeal === 'snacks' ? 'active' : ''}}"
+                data-meal="snacks" bindtap="selectMeal">
+          <text class="meal-option-icon">🍰</text>
+          <text>加餐</text>
+        </button>
+      </view>
+
+      <view class="action-buttons">
+        <button class="btn-save-recipe" bindtap="saveToMyRecipes">
+          📋 添加到食谱
+        </button>
+        <button class="btn-save-to-diary {{selectedMeal ? '' : 'btn-disabled'}}" bindtap="saveToDiary">
+          📝 保存记录
+        </button>
+      </view>
+
+      <!-- 日期选择 -->
+      <view class="date-picker-row">
+        <text class="date-picker-label">📅 记录日期：</text>
+        <picker mode="date" value="{{selectedDate}}" bindchange="bindDateChange">
+          <view class="date-picker-value">{{selectedDate}}</view>
+        </picker>
+      </view>
+    </view>
+  </view>
+
+  <view class="tips-section">
+    <view class="tips-card">
+      <text class="tips-text">💡 提示：拍摄食物时请确保光线充足，食物清晰可见</text>
+    </view>
+  </view>
+</view>

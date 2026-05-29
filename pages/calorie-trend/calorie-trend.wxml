@@ -1,0 +1,62 @@
+<view class="container">
+  <!-- 摘要卡片 -->
+  <view class="summary-row">
+    <view class="summary-card">
+      <text class="summary-value">{{avgCalorie}}</text>
+      <text class="summary-label">日均摄入（千卡）</text>
+    </view>
+    <view class="summary-card">
+      <text class="summary-value goal">{{dailyGoal}}</text>
+      <text class="summary-label">每日目标（千卡）</text>
+    </view>
+  </view>
+
+  <!-- 折线图 -->
+  <view class="chart-section">
+    <view class="chart-header">
+      <text class="chart-title">{{showDropdown ? '选择时间范围' : '卡路里摄入趋势'}}</text>
+      <view class="dropdown-trigger" bindtap="toggleDropdown">
+        <text class="dropdown-label">{{dayRange === 7 ? '近7天' : dayRange === 15 ? '近15天' : '近30天'}}</text>
+        <text class="dropdown-arrow {{showDropdown ? 'arrow-up' : ''}}">▼</text>
+      </view>
+    </view>
+
+    <!-- 下拉菜单 -->
+    <view class="dropdown-menu {{showDropdown ? 'dropdown-show' : ''}}">
+      <view
+        wx:for="{{rangeOptions}}"
+        wx:key="value"
+        class="dropdown-item {{dayRange === item.value ? 'dropdown-active' : ''}}"
+        data-value="{{item.value}}"
+        bindtap="selectRange"
+      >
+        <text>{{item.label}}</text>
+        <text wx:if="{{dayRange === item.value}}" class="dropdown-check">✓</text>
+      </view>
+    </view>
+
+    <canvas
+      type="2d"
+      id="calorieChart"
+      class="chart-canvas"
+    ></canvas>
+
+    <!-- 餐别开关 -->
+    <view class="meal-toggles">
+      <view
+        wx:for="{{mealToggles}}"
+        wx:key="key"
+        class="meal-toggle {{item.enabled ? 'toggle-on' : 'toggle-off'}}"
+        style="--meal-color: {{item.color}}"
+        data-key="{{item.key}}"
+        bindtap="toggleMeal"
+      >
+        <view class="toggle-dot" style="background-color: {{item.color}}"></view>
+        <text class="toggle-name">{{item.name}}</text>
+        <view class="toggle-switch">
+          <view class="switch-knob"></view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

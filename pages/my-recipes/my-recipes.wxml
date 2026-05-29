@@ -1,0 +1,186 @@
+<view class="container">
+  <!-- 顶部操作栏 -->
+  <view class="top-bar">
+    <view class="top-bar-left">
+      <button class="bar-btn" bindtap="showSortOptions">📊 {{sortLabel}}</button>
+    </view>
+    <view class="top-bar-right">
+      <button class="bar-btn" wx:if="{{!sortMode}}" bindtap="enterSortMode">☰ 手动排序</button>
+      <button class="bar-btn bar-btn-save" wx:else bindtap="saveSortOrder">✓ 完成排序</button>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{filteredRecipes.length === 0}}">
+    <text class="empty-icon">📭</text>
+    <text class="empty-text">还没有收藏菜谱</text>
+    <text class="empty-hint">在菜谱生成或卡路里识别页面点击"添加到我的食谱"即可收藏</text>
+  </view>
+
+  <!-- 菜谱列表 -->
+  <view class="recipes-list" wx:else>
+    <view class="recipe-card {{expandedId === item.id ? 'expanded' : ''}} {{sortMode ? 'sorting' : ''}}"
+          wx:for="{{filteredRecipes}}" wx:key="id"
+          bindtap="{{sortMode ? '' : 'toggleDetail'}}" data-id="{{item.id}}"
+          style="{{dragItemId === item.id ? dragStyle : ''}}">
+      <view class="card-row">
+        <view class="card-info">
+          <text class="card-name">{{item.name}}</text>
+          <view class="card-tags">
+            <text class="card-type">{{item.type === 'recipe' ? '菜谱' : '食物'}}</text>
+          </view>
+        </view>
+        <view class="card-photo">
+          <image wx:if="{{item.image}}" src="{{item.image}}" mode="aspectFill" class="photo-img"></image>
+          <view wx:else class="photo-empty">
+            <text class="photo-placeholder">{{item.type === 'recipe' ? '🍳' : '📸'}}</text>
+          </view>
+        </view>
+        <text class="card-arrow" wx:if="{{!sortMode}}">{{expandedId === item.id ? '▲' : '▼'}}</text>
+        <!-- 排序模式：右侧拖动把手 -->
+        <view class="sort-handle {{dragItemId === item.id ? 'dragging' : ''}}"
+              wx:if="{{sortMode}}"
+              catchtouchstart="onDragStart"
+              catchtouchmove="onDragMove"
+              catchtouchend="onDragEnd"
+              data-id="{{item.id}}">
+          <text class="sort-icon">☰</text>
+        </view>
+      </view>
+
+      <!-- 展开详情（排序模式下隐藏） -->
+      <view class="card-detail" wx:if="{{expandedId === item.id && !sortMode}}">
+        <view class="detail-row">
+          <text class="detail-label">卡路里</text>
+          <text class="detail-value">{{item.calories}} 千卡</text>
+        </view>
+        <view class="detail-row" wx:if="{{item.nutrition}}">
+          <text class="detail-label">营养</text>
+          <text class="detail-value">{{item.nutrition}}</text>
+        </view>
+        <view class="detail-row" wx:if="{{item.cookTime}}">
+          <text class="detail-label">烹饪时间</text>
+          <text class="detail-value">{{item.cookTime}}</text>
+        </view>
+        <view class="detail-row" wx:if="{{item.difficulty}}">
+          <text class="detail-label">难度</text>
+          <text class="detail-value">{{item.difficulty}}</text>
+        </view>
+        <view class="detail-row" wx:if="{{item.suggestion}}">
+          <text class="detail-label">建议</text>
+          <text class="detail-value">{{item.suggestion}}</text>
+        </view>
+        <view class="detail-row">
+          <text class="detail-label">收藏时间</text>
+          <text class="detail-value">{{item.savedAt}}</text>
+        </view>
+
+        <view class="detail-section" wx:if="{{item.ingredients.length > 0}}">
+          <text class="section-label">所需食材</text>
+          <text class="section-text">{{item.ingredients.join('、')}}</text>
+        </view>
+
+        <view class="detail-section" wx:if="{{item.steps.length > 0}}">
+          <text class="section-label">烹饪步骤</text>
+          <view class="step-item" wx:for="{{item.steps}}" wx:for-item="step" wx:for-index="si" wx:key="si">
+            <text class="step-num">{{si + 1}}.</text>
+            <text class="step-text">{{step}}</text>
+          </view>
+        </view>
+
+        <view class="detail-actions">
+          <button class="btn-edit" catchtap="openEditDialog" data-id="{{item.id}}">编辑</button>
+          <button class="btn-delete" catchtap="deleteRecipe" data-id="{{item.id}}">删除</button>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 排序弹窗 -->
+  <view class="edit-dialog" wx:if="{{showSortDialog}}">
+    <view class="dialog-mask" catchtap="closeSortDialog"></view>
+    <view class="dialog-content dialog-small">
+      <view class="dialog-header">
+        <text class="dialog-title">排序方式</text>
+        <text class="dialog-close" catchtap="closeSortDialog">×</text>
+      </view>
+      <view class="dialog-body">
+        <view class="sort-option {{sortType === 'time-desc' ? 'sort-active' : ''}}"
+              bindtap="setSort" data-type="time-desc">
+          <text>🕐 收藏时间（最新）</text>
+          <text class="sort-check" wx:if="{{sortType === 'time-desc'}}">✓</text>
+        </view>
+        <view class="sort-option {{sortType === 'time-asc' ? 'sort-active' : ''}}"
+              bindtap="setSort" data-type="time-asc">
+          <text>🕐 收藏时间（最早）</text>
+          <text class="sort-check" wx:if="{{sortType === 'time-asc'}}">✓</text>
+        </view>
+        <view class="sort-option {{sortType === 'name' ? 'sort-active' : ''}}"
+              bindtap="setSort" data-type="name">
+          <text>🔤 名称排序</text>
+          <text class="sort-check" wx:if="{{sortType === 'name'}}">✓</text>
+        </view>
+        <view class="sort-option {{sortType === 'calories' ? 'sort-active' : ''}}"
+              bindtap="setSort" data-type="calories">
+          <text>🔥 卡路里排序</text>
+          <text class="sort-check" wx:if="{{sortType === 'calories'}}">✓</text>
+        </view>
+        <view class="sort-option {{sortType === 'manual' ? 'sort-active' : ''}}"
+              bindtap="setSort" data-type="manual">
+          <text>☰ 手动排序</text>
+          <text class="sort-check" wx:if="{{sortType === 'manual'}}">✓</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 编辑弹窗 -->
+  <view class="edit-dialog" wx:if="{{showEditDialog}}">
+    <view class="dialog-mask" catchtap="closeEditDialog"></view>
+    <view class="dialog-content">
+      <view class="dialog-header">
+        <text class="dialog-title">编辑菜谱</text>
+        <text class="dialog-close" catchtap="closeEditDialog">×</text>
+      </view>
+      <view class="dialog-body">
+        <view class="edit-field">
+          <text class="edit-label">名称</text>
+          <input class="edit-input" value="{{editName}}" bindinput="onEditName" placeholder="请输入名称" />
+        </view>
+        <view class="edit-field">
+          <text class="edit-label">图片</text>
+          <view class="edit-photo" bindtap="changePhoto">
+            <image wx:if="{{editImage}}" src="{{editImage}}" mode="aspectFill" class="edit-photo-img"></image>
+            <view wx:else class="edit-photo-empty">
+              <text>点击选择图片</text>
+            </view>
+          </view>
+        </view>
+        <view class="edit-field">
+          <text class="edit-label">卡路里</text>
+          <input class="edit-input" value="{{editCalories}}" bindinput="onEditCalories" placeholder="请输入卡路里" />
+        </view>
+        <view class="edit-field" wx:if="{{editNutrition !== undefined}}">
+          <text class="edit-label">营养</text>
+          <input class="edit-input" value="{{editNutrition}}" bindinput="onEditNutrition" placeholder="请输入营养成分" />
+        </view>
+        <view class="edit-field" wx:if="{{editCookTime !== undefined}}">
+          <text class="edit-label">烹饪时间</text>
+          <input class="edit-input" value="{{editCookTime}}" bindinput="onEditCookTime" placeholder="请输入烹饪时间" />
+        </view>
+        <view class="edit-field" wx:if="{{editDifficulty !== undefined}}">
+          <text class="edit-label">难度</text>
+          <input class="edit-input" value="{{editDifficulty}}" bindinput="onEditDifficulty" placeholder="请输入难度" />
+        </view>
+        <view class="edit-field" wx:if="{{editSuggestion !== undefined}}">
+          <text class="edit-label">建议</text>
+          <input class="edit-input" value="{{editSuggestion}}" bindinput="onEditSuggestion" placeholder="请输入建议" />
+        </view>
+      </view>
+      <view class="dialog-footer">
+        <button class="dialog-btn dialog-btn-cancel" catchtap="closeEditDialog">取消</button>
+        <button class="dialog-btn dialog-btn-save" catchtap="saveEdit">保存</button>
+      </view>
+    </view>
+  </view>
+</view>

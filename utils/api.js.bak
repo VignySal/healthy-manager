@@ -1,0 +1,579 @@
+// 阿里云API配置
+const API_KEY = 'sk-a46921c7343b4a60af36ed720bd6e51c';
+const BASE_URL = 'https://dashscope.aliyuncs.com/compatible-mode/v1';
+const { compressImage } = require('./util');
+const { log, error: logError } = require('./logger');
+const { API_RETRY_MAX, API_RETRY_BASE_DELAY, RECOGNITION_CACHE_TTL, MODEL_CONFIG } = require('./constants');
+
+// 带指数退避的请求重试封装
+const requestWithRetry = (options, maxRetries = API_RETRY_MAX, baseDelay = API_RETRY_BASE_DELAY) => {
+  return new Promise((resolve, reject) => {
+    let attempt = 0;
+
+    const doRequest = () => {
+      attempt++;
+      wx.request({
+        ...options,
+        success: (response) => {
+          if (response.statusCode === 200) {
+            resolve(response);
+          } else if ((response.statusCode >= 500 || response.statusCode === 429) && attempt < maxRetries) {
+            const delay = baseDelay * Math.pow(2, attempt - 1);
+            setTimeout(doRequest, delay);
+          } else {
+            resolve(response);
+          }
+        },
+        fail: (err) => {
+          if (attempt < maxRetries) {
+            const delay = baseDelay * Math.pow(2, attempt - 1);
+            setTimeout(doRequest, delay);
+          } else {
+            reject(err);
+          }
+        }
+      });
+    };
+
+    doRequest();
+  });
+};
+
+// 食材识别缓存（图片hash → 结果）
+const recognitionCache = {};
+
+// 简单hash函数，用于图片缓存key
+const simpleHash = (str) => {
+  let hash = 0;
+  for (let i = 0; i < Math.min(str.length, 2000); i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash |= 0;
+  }
+  return hash.toString(36);
+};
+
+// 使用阿里云多模态API进行单张图片食材识别
+const recognizeSingleImage = (imagePath) => {
+  return new Promise((resolve) => {
+    compressImage(imagePath, 70).then((compressedPath) => {
+      wx.getFileSystemManager().readFile({
+        filePath: compressedPath,
+        encoding: 'base64',
+        success: (res) => {
+          const base64Image = res.data;
+
+          // 检查缓存
+          const cacheKey = simpleHash(base64Image);
+          const cached = recognitionCache[cacheKey];
+          if (cached && (Date.now() - cached.time < RECOGNITION_CACHE_TTL)) {
+            log('命中食材识别缓存');
+            resolve(cached.ingredients);
+            return;
+          }
+
+          const imageUrl = `data:image/jpeg;base64,${base64Image}`;
+
+          requestWithRetry({
+            url: `${BASE_URL}/chat/completions`,
+            method: 'POST',
+            header: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${API_KEY}`
+            },
+            data: {
+              model: MODEL_CONFIG.ingredientRecognition.model,
+              messages: [
+                {
+                  role: 'system',
+                  content: '你是一个专业的食材识别助手，能够从图片中识别出所有的食材名称。'
+                },
+                {
+                  role: 'user',
+                  content: [
+                    {
+                      type: 'image_url',
+                      image_url: { url: imageUrl }
+                    },
+                    {
+                      type: 'text',
+                      text: '请识别图片中的所有食材，只返回食材名称列表，不要有其他文字。格式：["食材1", "食材2", "食材3"]'
+                    },
+                    {
+                      type: 'text',
+                      text: '<think>'
+                    }
+                  ]
+                }
+              ],
+              max_tokens: MODEL_CONFIG.ingredientRecognition.maxTokens,
+              temperature: MODEL_CONFIG.ingredientRecognition.temperature
+            }
+          }).then((response) => {
+            if (response.statusCode === 200 && response.data && response.data.choices) {
+              const content = response.data.choices[0].message.content;
+              try {
+                const ingredients = JSON.parse(content);
+                recognitionCache[cacheKey] = { ingredients, time: Date.now() };
+                resolve(ingredients);
+              } catch (error) {
+                const extractedIngredients = extractIngredientsFromText(content);
+                recognitionCache[cacheKey] = { ingredients: extractedIngredients, time: Date.now() };
+                resolve(extractedIngredients);
+              }
+            } else {
+              resolve([]);
+            }
+          }).catch(() => {
+            resolve([]);
+          });
+        },
+        fail: () => {
+          resolve([]);
+        }
+      });
+    }).catch(() => {
+      resolve([]);
+    });
+  });
+};
+
+// 使用阿里云多模态API进行食材识别（支持单张或多张图片）
+const recognizeIngredients = (imagePaths) => {
+  const paths = Array.isArray(imagePaths) ? imagePaths : [imagePaths];
+  log(`开始识别${paths.length}张图片的食材`);
+
+  const tasks = paths.map(p => recognizeSingleImage(p));
+  return Promise.all(tasks).then(results => {
+    const allIngredients = [];
+    results.forEach(ings => {
+      if (Array.isArray(ings)) {
+        allIngredients.push(...ings);
+      }
+    });
+    // 去重
+    const uniqueIngredients = [...new Set(allIngredients)];
+    log(`识别完成，共${uniqueIngredients.length}种食材:`, uniqueIngredients);
+    return { success: true, ingredients: uniqueIngredients };
+  }).catch(err => {
+    logError('多图识别出错:', err);
+    return { success: false, ingredients: [] };
+  });
+};
+
+// 从文本中提取食材名称
+const extractIngredientsFromText = (text) => {
+  try {
+    // 尝试匹配中文食材名称
+    const ingredientPattern = /[一-龥]+/g;
+    const matches = text.match(ingredientPattern) || [];
+
+    // 过滤掉常见的非食材词汇
+    const commonNonIngredients = ['图片', '食材', '识别', '中的', '所有', '请', '返回', '列表', '不要', '其他', '文字', '格式', '如下'];
+    const ingredients = matches.filter(item => {
+      return item.length > 1 && !commonNonIngredients.includes(item);
+    });
+
+    // 去重
+    return [...new Set(ingredients)];
+  } catch (error) {
+    logError('提取食材失败:', error);
+    // 返回默认食材
+    return ['西红柿', '鸡蛋', '青椒'];
+  }
+};
+
+// 根据用户饮食偏好构建约束提示词
+const buildDietaryPrompt = () => {
+  try {
+    const prefs = wx.getStorageSync('dietaryPreferences');
+    if (!prefs) return '';
+
+    const parts = [];
+
+    if (prefs.restrictions && prefs.restrictions.length > 0) {
+      parts.push(`用户忌口食物：${prefs.restrictions.join('、')}。请确保所有菜谱不使用这些食材。`);
+    }
+
+    if (prefs.spicyLevel === 0) {
+      parts.push('用户不吃辣，所有菜谱请避免使用辣椒、花椒等辛辣调料。');
+    } else if (prefs.spicyLevelName) {
+      parts.push(`用户偏好辣度：${prefs.spicyLevelName}。`);
+    }
+
+    if (prefs.tastePreferences && prefs.tastePreferences.length > 0) {
+      parts.push(`用户口味偏好：${prefs.tastePreferences.join('、')}。`);
+    }
+
+    if (prefs.notes && prefs.notes.trim()) {
+      parts.push(`用户备注：${prefs.notes}`);
+    }
+
+    if (parts.length === 0) return '';
+    return '\n【用户饮食偏好约束】\n' + parts.join('\n') + '\n';
+  } catch (e) {
+    return '';
+  }
+};
+
+// 使用阿里云API生成菜谱
+const generateRecipes = (ingredients, cookingStyle = 'standard', cookingTime = 0) => {
+  return new Promise((resolve, reject) => {
+    // 根据不同风格生成不同的prompt
+    let stylePrompt = '';
+    let styleDescription = '';
+
+    switch (cookingStyle) {
+      case 'diet':
+        stylePrompt = '请采用减脂风格：低油低盐、高蛋白、少糖少淀粉，注重营养搭配和健康烹饪方式（如蒸、煮、少油炒）。';
+        styleDescription = '减脂健康';
+        break;
+      case 'kids':
+        stylePrompt = '请采用儿童友好风格：口味清淡、色彩丰富、营养均衡、避免辛辣刺激，注重食材的软嫩口感和可爱造型。';
+        styleDescription = '儿童营养';
+        break;
+      default:
+        stylePrompt = '请采用标准家常菜风格：口味适中、做法简单、适合家庭日常烹饪。';
+        styleDescription = '标准家常';
+    }
+
+    // 时间约束
+    let timePrompt = '';
+    if (cookingTime > 0) {
+      timePrompt = `【硬性要求】用户只有${cookingTime}分钟的做饭时间。所有推荐菜谱的cookTime不得超过${cookingTime}分钟，超过此时间的菜一律不要推荐。`;
+    }
+
+    const prompt = `
+<<think>
+你是一个专业的厨师。请根据用户提供的食材：${ingredients.join('、')}，严格推荐 3 道家常菜。必须返回恰好3道菜，不能多也不能少。
+
+${stylePrompt}
+
+${timePrompt}
+
+${buildDietaryPrompt()}
+重要说明：你可以使用部分食材来生成菜谱，不需要使用所有食材。
+
+请严格遵守以下规则：
+1. 仅输出标准的 JSON 格式数据，不要包含 markdown 标记（如 \`\`\`json），不要包含任何解释性文字。
+2. 返回的数据必须是一个包含恰好3个元素的对象数组。
+3. 每个对象必须包含以下字段：
+   - "name": 菜名 (字符串)
+   - "difficulty": 难度 (字符串，如：简单/中等/困难)
+   - "cookTime": 烹饪时间 (字符串，如：15分钟，必须真实反映实际烹饪耗时)
+   - "calories": 大概的卡路里含量 (字符串，如：约300)
+   - "ingredients": 所需所有食材列表 (数组)
+   - "steps": 烹饪步骤 (字符串数组，例如 ["1. 热锅凉油", "2. 下入食材..."])
+`;
+
+    log('开始调用阿里云API生成菜谱');
+    log('食材列表:', ingredients);
+    log('Prompt:', prompt);
+
+    requestWithRetry({
+      url: `${BASE_URL}/chat/completions`,
+      method: 'POST',
+      header: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${API_KEY}`
+      },
+      data: {
+        model: MODEL_CONFIG.recipeGeneration.model,
+        messages: [
+          {
+            role: 'system',
+            content: '你是一个专业的菜谱生成助手，能够根据食材生成详细的家常菜谱。'
+          },
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
+        max_tokens: MODEL_CONFIG.recipeGeneration.maxTokens,
+        temperature: MODEL_CONFIG.recipeGeneration.temperature
+      }
+    }).then((response) => {
+      log('API调用成功，状态码:', response.statusCode);
+
+      if (response.statusCode === 200 && response.data && response.data.choices) {
+        const content = response.data.choices[0].message.content;
+        log('AI返回内容:', content);
+
+        try {
+          const recipes = parseRecipes(content, ingredients);
+          resolve({ success: true, recipes });
+        } catch (parseErr) {
+          logError('解析菜谱失败:', parseErr);
+          resolve({ success: false, recipes: [] });
+        }
+      } else {
+        logError('API调用失败，返回数据:', response);
+        resolve({ success: false, recipes: [] });
+      }
+    }).catch((err) => {
+      logError('API请求失败:', err);
+      resolve({ success: false, recipes: [] });
+    });
+  });
+};
+
+// 从AI返回内容中提取JSON字符串
+const extractJSON = (content) => {
+  // 1. 去掉markdown代码块包裹
+  let text = content.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/,'\'').trim();
+
+  // 2. 尝试直接解析
+  try { JSON.parse(text); return text; } catch(e) {}
+
+  // 3. 提取第一个 [ ... ] 或 { ... } JSON结构
+  const arrMatch = text.match(/\[[\s\S]*\]/);
+  if (arrMatch) {
+    try { JSON.parse(arrMatch[0]); return arrMatch[0]; } catch(e) {}
+  }
+  const objMatch = text.match(/\{[\s\S]*\}/);
+  if (objMatch) {
+    try { JSON.parse(objMatch[0]); return objMatch[0]; } catch(e) {}
+  }
+
+  // 4. 逐步截断尾部垃圾字符重试
+  for (let len = text.length; len > 10; len -= 10) {
+    const sub = text.substring(0, len);
+    try { JSON.parse(sub); return sub; } catch(e) {}
+  }
+
+  return null;
+};
+
+// 解析AI生成的菜谱
+const parseRecipes = (content, userIngredients) => {
+  log('开始解析菜谱，原始内容长度:', content.length);
+
+  const jsonStr = extractJSON(content);
+  if (!jsonStr) {
+    logError('无法从AI返回内容中提取有效JSON');
+    throw new Error('解析失败');
+  }
+
+  const parsedContent = JSON.parse(jsonStr);
+  const recipesArray = Array.isArray(parsedContent) ? parsedContent : [parsedContent];
+
+  const processedRecipes = recipesArray.map(recipe => ({
+    name: recipe.name || '未知菜谱',
+    ingredients: recipe.ingredients || [],
+    missingIngredients: (recipe.ingredients || []).filter(ing => !userIngredients.includes(ing)),
+    difficulty: recipe.difficulty || '简单',
+    cookTime: recipe.cookTime || '',
+    calories: recipe.calories || '约300',
+    steps: recipe.steps || []
+  }));
+
+  log('菜谱解析成功，共', processedRecipes.length, '道:', processedRecipes.map(r => r.name).join('、'));
+  return processedRecipes;
+};
+
+// 使用阿里云多模态API进行卡路里识别
+const recognizeCalorie = (imagePath) => {
+  return new Promise((resolve, reject) => {
+    // 读取图片文件并压缩
+    wx.compressImage({
+      src: imagePath,
+      quality: 70,
+      success: (compressRes) => {
+        wx.getFileSystemManager().readFile({
+          filePath: compressRes.tempFilePath,
+          encoding: 'base64',
+          success: (res) => {
+            const base64Image = res.data;
+            const imageUrl = `data:image/jpeg;base64,${base64Image}`;
+
+            // 调用阿里云多模态API（带重试）
+            requestWithRetry({
+              url: `${BASE_URL}/chat/completions`,
+              method: 'POST',
+              header: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${API_KEY}`
+              },
+              data: {
+                model: MODEL_CONFIG.calorieRecognition.primary.model,
+                messages: [
+                  {
+                    role: 'system',
+                    content: '你是一个专业的营养分析师，能够从食物图片中识别食物并分析其卡路里和营养成分。'
+                  },
+                  {
+                    role: 'user',
+                    content: [
+                      {
+                        type: 'image_url',
+                        image_url: {
+                          url: imageUrl
+                        }
+                      },
+                      {
+                        type: 'text',
+                        text: '请识别图片中的食物，分析其卡路里含量和主要营养成分，并给出健康建议。' + buildDietaryPrompt() + '请返回JSON格式：{"foodName": "食物名称", "calories": "卡路里含量", "nutrition": "营养成分", "suggestion": "健康建议"}'
+                      },
+                      {
+                        type: 'text',
+                        text: '<think>'
+                      }
+                    ]
+                  }
+                ],
+                max_tokens: MODEL_CONFIG.calorieRecognition.primary.maxTokens,
+                temperature: MODEL_CONFIG.calorieRecognition.primary.temperature
+              }
+            }).then((response) => {
+              log('卡路里API调用成功，状态码:', response.statusCode);
+
+              if (response.statusCode === 200 && response.data && response.data.choices) {
+                const content = response.data.choices[0].message.content;
+                try {
+                  const calorieData = JSON.parse(content);
+                  resolve({ success: true, data: calorieData });
+                } catch (parseError) {
+                  logError('解析卡路里数据失败:', parseError);
+                  resolve({
+                    success: true,
+                    data: {
+                      foodName: '未知食物',
+                      calories: '无法解析',
+                      nutrition: '无法分析',
+                      suggestion: '请拍摄更清晰的照片'
+                    }
+                  });
+                }
+              } else {
+                reject(new Error('API调用失败'));
+              }
+            }).catch((err) => {
+              reject(err);
+            });
+          },
+          fail: (err) => {
+            reject(err);
+          }
+        });
+      },
+      fail: (err) => {
+        // 压缩失败时使用原图
+        wx.getFileSystemManager().readFile({
+          filePath: imagePath,
+          encoding: 'base64',
+          success: (res) => {
+            const base64Image = res.data;
+            const imageUrl = `data:image/jpeg;base64,${base64Image}`;
+
+            // 调用阿里云多模态API（带重试，降级模型）
+            requestWithRetry({
+              url: `${BASE_URL}/chat/completions`,
+              method: 'POST',
+              header: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${API_KEY}`
+              },
+              data: {
+                model: MODEL_CONFIG.calorieRecognition.fallback.model,
+                messages: [
+                  {
+                    role: 'system',
+                    content: '你是一个专业的营养分析师，能够从食物图片中识别食物并分析其卡路里和营养成分。'
+                  },
+                  {
+                    role: 'user',
+                    content: [
+                      {
+                        type: 'image_url',
+                        image_url: {
+                          url: imageUrl
+                        }
+                      },
+                      {
+                        type: 'text',
+                        text: '请识别图片中的食物，分析其卡路里含量和主要营养成分，并给出健康建议。' + buildDietaryPrompt() + '请返回JSON格式：{"foodName": "食物名称", "calories": "卡路里含量", "nutrition": "营养成分", "suggestion": "健康建议"}'
+                      },
+                      {
+                        type: 'text',
+                        text: '<think>'
+                      }
+                    ]
+                  }
+                ],
+                max_tokens: MODEL_CONFIG.calorieRecognition.fallback.maxTokens,
+                temperature: MODEL_CONFIG.calorieRecognition.fallback.temperature
+              }
+            }).then((response) => {
+              if (response.statusCode === 200 && response.data && response.data.choices) {
+                const content = response.data.choices[0].message.content;
+                try {
+                  const calorieData = JSON.parse(content);
+                  resolve({ success: true, data: calorieData });
+                } catch (error) {
+                  resolve({
+                    success: true,
+                    data: {
+                      foodName: '未知食物',
+                      calories: '约100卡路里',
+                      nutrition: '无法分析',
+                      suggestion: '请拍摄更清晰的照片'
+                    }
+                  });
+                }
+              } else {
+                reject(new Error('API调用失败'));
+              }
+            }).catch((err) => {
+              reject(err);
+            });
+          },
+          fail: (err) => {
+            reject(err);
+          }
+        });
+      }
+    });
+  });
+};
+
+// 解析卡路里文本，提取数值范围的中心值
+// 例如："约280-350k/份（约300g）" → 315
+const parseCalorieText = (calorieText) => {
+  if (!calorieText || typeof calorieText !== 'string') {
+    return 0;
+  }
+
+  log('开始解析卡路里文本:', calorieText);
+
+  // 尝试匹配数字范围模式：如 "280-350", "280~350", "280至350"
+  const rangeMatch = calorieText.match(/(\d+(?:\.\d+)?)\s*[-~至]\s*(\d+(?:\.\d+)?)/);
+  if (rangeMatch) {
+    const start = parseFloat(rangeMatch[1]);
+    const end = parseFloat(rangeMatch[2]);
+    if (!isNaN(start) && !isNaN(end) && start <= end) {
+      const center = Math.round((start + end) / 2);
+      log(`解析到范围 ${start}-${end}, 中心值: ${center}`);
+      return center;
+    }
+  }
+
+  // 尝试匹配单个数字：如 "约300卡路里"
+  const singleMatch = calorieText.match(/(\d+(?:\.\d+)?)/);
+  if (singleMatch) {
+    const value = parseFloat(singleMatch[1]);
+    if (!isNaN(value)) {
+      log(`解析到单个数值: ${value}`);
+      return value;
+    }
+  }
+
+  log('无法解析卡路里文本，返回默认值0');
+  return 0; // 默认值
+};
+
+module.exports = {
+  recognizeIngredients,
+  generateRecipes,
+  recognizeCalorie,
+  parseCalorieText
+};

@@ -1,0 +1,220 @@
+.container {
+  padding: 24rpx;
+  padding-bottom: calc(60rpx + env(safe-area-inset-bottom));
+  min-height: 100vh;
+  background: var(--bg-page);
+}
+
+/* 摘要卡片 */
+.summary-row {
+  display: flex;
+  gap: 20rpx;
+  margin-bottom: 24rpx;
+}
+
+.summary-card {
+  flex: 1;
+  background: var(--bg-white);
+  border-radius: var(--radius-lg);
+  padding: 28rpx 24rpx;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.summary-value {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #4CAF50;
+  display: block;
+  line-height: 1.2;
+}
+
+.summary-value.goal {
+  color: #FF9800;
+}
+
+.summary-label {
+  font-size: 22rpx;
+  color: var(--text-hint);
+  margin-top: 8rpx;
+  display: block;
+}
+
+/* 折线图区域 */
+.chart-section {
+  background: var(--bg-white);
+  border-radius: var(--radius-lg);
+  padding: 28rpx 24rpx 20rpx;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+}
+
+.chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16rpx;
+}
+
+.chart-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* 下拉触发器 */
+.dropdown-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 10rpx 20rpx;
+  background: #f5f5f5;
+  border-radius: 20rpx;
+  border: 1rpx solid #e8e8e8;
+}
+
+.dropdown-label {
+  font-size: 24rpx;
+  color: var(--text-secondary);
+}
+
+.dropdown-arrow {
+  font-size: 18rpx;
+  color: var(--text-hint);
+  transition: transform 0.2s;
+}
+
+.arrow-up {
+  transform: rotate(180deg);
+}
+
+/* 下拉菜单 */
+.dropdown-menu {
+  position: absolute;
+  top: 72rpx;
+  right: 24rpx;
+  background: var(--bg-white);
+  border-radius: 12rpx;
+  box-shadow: 0 8rpx 28rpx rgba(0, 0, 0, 0.15);
+  z-index: 10;
+  opacity: 0;
+  transform: translateY(-8rpx);
+  pointer-events: none;
+  transition: all 0.2s ease;
+}
+
+.dropdown-show {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22rpx 36rpx;
+  font-size: 26rpx;
+  color: var(--text-primary);
+  min-width: 180rpx;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+
+.dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.dropdown-item:active {
+  background: #f9f9f9;
+}
+
+.dropdown-active {
+  color: #4CAF50;
+  font-weight: 600;
+}
+
+.dropdown-check {
+  font-size: 24rpx;
+  color: #4CAF50;
+}
+
+.chart-canvas {
+  width: 100%;
+  height: 500rpx;
+}
+
+/* 餐别开关 */
+.meal-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-top: 24rpx;
+  padding-top: 20rpx;
+  border-top: 1rpx solid #f0f0f0;
+}
+
+.meal-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  padding: 12rpx 22rpx;
+  border-radius: 24rpx;
+  background: #f5f5f5;
+  transition: all 0.2s;
+}
+
+.toggle-on {
+  background: #f0faf1;
+}
+
+.toggle-off {
+  background: #f5f5f5;
+}
+
+.toggle-dot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.toggle-name {
+  font-size: 24rpx;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.toggle-off .toggle-name {
+  color: #bbb;
+}
+
+/* 开关滑块 */
+.toggle-switch {
+  width: 52rpx;
+  height: 30rpx;
+  border-radius: 15rpx;
+  background: #d9d9d9;
+  position: relative;
+  transition: background 0.25s;
+  flex-shrink: 0;
+}
+
+.toggle-on .toggle-switch {
+  background: #4CAF50;
+}
+
+.switch-knob {
+  width: 26rpx;
+  height: 26rpx;
+  border-radius: 50%;
+  background: #fff;
+  position: absolute;
+  top: 2rpx;
+  left: 2rpx;
+  transition: left 0.25s;
+  box-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.15);
+}
+
+.toggle-on .switch-knob {
+  left: 24rpx;
+}
