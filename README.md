@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 冰箱清空大师 - 微信小程序 项目总结
 
 ## 项目概述
@@ -177,3 +178,6 @@
 - 1 个自定义 tab-bar 组件
 - 1 个云函数（cloud/functions/getOpenid）
 - 1 个 TypeScript 类型声明文件（typings/wx.d.ts）
+=======
+# healthy-manager
+>>>>>>> e469186467f63e117ccb89b548b6b565eade7dd1
